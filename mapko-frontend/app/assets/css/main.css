@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =============================================
+   COULEURS PRINCIPALES — MAPKO
+   ============================================= */
+:root {
+  /* --- Violet (Primary) --- */
+  --color-violet:        #7A2E8E;
+  --color-violet-light:  #9B4AAF;
+  --color-violet-dark:   #5A1E6E;
+
+  /* --- Bleu (Secondary) --- */
+  --color-blue:          #0F4C81;
+  --color-blue-light:    #2A6BA8;
+  --color-blue-dark:     #083460;
+
+  /* --- Blanc & Noir --- */
+  --color-white:         #FFFFFF;
+  --color-black:         #000000;
+
+  /* --- Alias sémantiques --- */
+  --color-primary:       var(--color-violet);
+  --color-primary-light: var(--color-violet-light);
+  --color-primary-dark:  var(--color-violet-dark);
+
+  --color-secondary:       var(--color-blue);
+  --color-secondary-light: var(--color-blue-light);
+  --color-secondary-dark:  var(--color-blue-dark);
+
+  --color-bg:         var(--color-white);
+  --color-text:       var(--color-black);
+  --color-text-muted: #6B7280;
+}
+
+/* Mode sombre */
+.dark {
+  --color-bg:         #0D0D0D;
+  --color-text:       var(--color-white);
+  --color-text-muted: #9CA3AF;
+}
+
+/* =============================================
+   ANIMATIONS GLOBALES
+   ============================================= */
+.animate-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform, opacity;
+}
+
+.animate-reveal.is-active {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Delays utilitaires pour les listes */
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
