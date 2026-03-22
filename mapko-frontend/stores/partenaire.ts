@@ -54,8 +54,8 @@ export const usePartenaireStore = defineStore("partenaire", {
           body: formData,
         });
 
-        // Mise à jour locale
-        this.partenaires.unshift(res);
+        // Mise à jour locale sécurisée par un re-fetch
+        await this.fetch();
         return res;
       } catch (error: any) {
         throw error;
@@ -76,12 +76,8 @@ export const usePartenaireStore = defineStore("partenaire", {
           body: formData,
         });
 
-        // Mise à jour locale
-        const index = this.partenaires.findIndex(p => p.id === id);
-        if (index !== -1) {
-          this.partenaires[index] = res;
-        }
-
+        // Mise à jour locale sécurisée par un re-fetch
+        await this.fetch();
         return res;
       } catch (error: any) {
         throw error;

@@ -7,17 +7,17 @@
         <img src="/images/reference-bg.jpg" alt="Références Mapko" class="ref-hero__img" />
         <div class="ref-hero__overlay" />
       </div>
-      <div class="ref-hero__container" :class="{ 'is-visible': isHeroVisible }">
-        <h1 class="ref-hero__eyebrow animate-reveal">Nos Références</h1>
-        <h2 class="ref-hero__title animate-reveal">
+      <div class="ref-hero__container">
+        <h1 class="ref-hero__eyebrow reveal">Nos Références</h1>
+        <h2 class="ref-hero__title reveal delay-100">
           Des projets structurants pour l'avenir de l'Afrique
         </h2>
-        <p class="ref-hero__subtitle animate-reveal">
+        <p class="ref-hero__subtitle reveal delay-200">
           Nos références témoignent de notre expertise et de la confiance que nous accordent nos partenaires publics, privés et institutionnels.
         </p>
 
         <!-- DOMAINES intégrés au Hero -->
-        <div class="ref-hero__domains domains-wrapper animate-reveal">
+        <div class="ref-hero__domains domains-wrapper reveal delay-300">
           <span v-for="domain in domains" :key="domain" class="domain-badge">
             <span class="domain-badge__icon" />
             {{ domain }}
@@ -27,37 +27,39 @@
     </section>
 
     <!-- PROJECTS GRID -->
-    <section class="ref-projects" ref="projectsSection" :class="{ 'is-visible': isVisible }">
+    <section class="ref-projects">
       <div class="ref-projects__container">
         <div class="projects-grid">
           <div 
-            v-for="(project, index) in projects" 
-            :key="project.title"
-            class="project-card animate-reveal"
-            :style="{ 'animation-delay': (index * 0.1) + 's' }"
+            v-for="(project, index) in referenceStore.references" 
+            :key="project.id"
+            class="project-card reveal"
+            :style="{ 'transition-delay': (index * 0.1) + 's' }"
           >
             <div class="project-card__header">
-              <span class="project-card__category">{{ project.category }}</span>
-              <span class="project-card__status" :class="project.status === 'En cours' ? 'status--active' : 'status--done'">
-                {{ project.status }}
+              <span class="project-card__category" v-if="project.secteur">{{ project.secteur.titre }}</span>
+              <span class="project-card__status" :class="project.statut === 'en_cours' ? 'status--active' : 'status--done'">
+                {{ project.statut === 'en_cours' ? 'En cours' : 'Terminé' }}
               </span>
             </div>
-            <h3 class="project-card__title">{{ project.title }}</h3>
+            <h3 class="project-card__title">{{ project.titre }}</h3>
             <div class="project-card__meta">
               <div class="meta-item">
                 <span class="meta-label">Montant</span>
-                <span class="meta-value">{{ project.amount }}</span>
+                <span class="meta-value">{{ project.montant || 'Confidentiel' }}</span>
               </div>
               <div class="meta-item">
-                <span class="meta-label">Année</span>
-                <span class="meta-value">{{ project.year }}</span>
+                <span class="meta-label">Période</span>
+                <span class="meta-value text-nowrap">
+                   {{ project.annee_debut }}{{ project.annee_fin ? ` — ${project.annee_fin}` : '' }}
+                </span>
               </div>
               <div class="meta-item">
                 <span class="meta-label">Pays</span>
-                <span class="meta-value">{{ project.country }}</span>
+                <span class="meta-value">{{ project.pays }}</span>
               </div>
             </div>
-            <p class="project-card__desc">{{ project.description }}</p>
+            <p class="project-card__desc" v-html="project.description"></p>
           </div>
         </div>
       </div>
@@ -66,12 +68,21 @@
     <!-- CLIENTS / LOGOS -->
     <section class="ref-clients">
       <div class="ref-clients__container">
-        <h3 class="clients-title">Ils nous font confiance</h3>
-        <p class="clients-subtitle">Banques, Institutions, Bailleurs de fonds, Gouvernements</p>
-        
-        <div class="logos-wall">
-          <div v-for="i in 12" :key="i" class="logo-box">
-             <div class="logo-placeholder">PARTENAIRE #{{ i }}</div>
+        <h3 class="clients-title text-balance">Nous avons eu à intervenir pour leur compte sur des thématiques variées :</h3>
+        <p class="clients-subtitle">stratégie, études, finance, capital humain, risques…</p>
+      </div>
+
+      <div class="logos-carousel">
+        <div class="logos-track" v-if="partenaireStore.partenaires.length > 0">
+          <!-- Premier set -->
+          <div v-for="partenaire in partenaireStore.partenaires" :key="'a-'+partenaire.id" class="logo-box" :title="partenaire.nom">
+             <img v-if="partenaire.logo" :src="getImageUrl(partenaire.logo)" :alt="partenaire.nom" class="carousel-img" />
+             <div v-else class="logo-placeholder">{{ partenaire.nom }}</div>
+          </div>
+          <!-- Second set pour boucle infinie -->
+          <div v-for="partenaire in partenaireStore.partenaires" :key="'b-'+partenaire.id" class="logo-box" :title="partenaire.nom">
+             <img v-if="partenaire.logo" :src="getImageUrl(partenaire.logo)" :alt="partenaire.nom" class="carousel-img" />
+             <div v-else class="logo-placeholder">{{ partenaire.nom }}</div>
           </div>
         </div>
       </div>
@@ -82,18 +93,23 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { projects, domains } from '~/data/references'
+import { useReferenceStore } from '~~/stores/reference'
+import { usePartenaireStore } from '~~/stores/partenaire'
+import { domains } from '~/data/references'
 
-const projectsSection = ref<HTMLElement | null>(null)
-const isVisible = ref(false)
-const isHeroVisible = ref(false)
+const referenceStore = useReferenceStore()
+const partenaireStore = usePartenaireStore()
+const config = useRuntimeConfig()
 
-onMounted(() => {
-  isHeroVisible.value = true
-  const observer = new IntersectionObserver((entries) => {
-    if (entries[0]?.isIntersecting) isVisible.value = true
-  }, { threshold: 0.1 })
-  if (projectsSection.value) observer.observe(projectsSection.value)
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
+onMounted(async () => {
+  referenceStore.fetch()
+  partenaireStore.fetch()
 })
 
 useHead({
@@ -305,69 +321,112 @@ useHead({
   font-size: 0.95rem;
 }
 
-/* ── CLIENTS ── */
+/* ── CLIENTS CAROUSEL ── */
 .ref-clients {
-  padding: 8rem 1.5rem;
+  padding: 8rem 0;
+  background: #fcfcfc;
+  overflow: hidden;
 }
 
 .ref-clients__container {
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: 1100px;
+  margin: 0 auto 4rem;
   text-align: center;
+  padding: 0 1.5rem;
 }
 
 .clients-title {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 800;
   color: var(--color-blue);
   margin-bottom: 1rem;
+  line-height: 1.3;
 }
 
 .clients-subtitle {
   color: #6b7280;
-  margin-bottom: 5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
-.logos-wall {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 2rem;
+.logos-carousel {
+  position: relative;
+  width: 100%;
+  display: flex;
+}
+
+/* Gradients for fading edges */
+.logos-carousel::before,
+.logos-carousel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 200px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+.logos-carousel::before { left: 0; background: linear-gradient(to right, #fcfcfc, transparent); }
+
+.logos-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+  gap: 2.5rem;
+  padding: 0 1.25rem;
+}
+
+.logos-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .logo-box {
-  height: 110px;
+  flex: 0 0 240px;
+  height: 120px;
+  background: #ffffff;
   border: 1px solid #f0f0f0;
-  border-radius: 16px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  user-select: none;
 }
 
 .logo-box:hover {
   border-color: var(--color-violet-light);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.carousel-img {
+  max-height: 65px;
+  max-width: 170px;
+  object-fit: contain;
+  transition: all 0.4s ease;
+}
+
+.logo-box:hover .carousel-img {
   transform: scale(1.05);
 }
 
 .logo-placeholder {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #d1d5db;
   text-transform: uppercase;
 }
 
 /* ── ANIMATIONS ── */
-.animate-reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.ref-hero__container.is-visible .animate-reveal,
-.ref-projects.is-visible .animate-reveal {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* Animations gérées globalement par .reveal */
 
 /* ── MOBILE ── */
 @media (max-width: 640px) {

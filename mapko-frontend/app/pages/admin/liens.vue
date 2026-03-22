@@ -57,9 +57,9 @@
         </div>
 
         <div class="form-actions border-top">
-          <button type="submit" class="btn-save">
+          <button type="submit" class="btn-save" :disabled="lienStore.loading">
              <component :is="IconSave" class="icon-sm" />
-             Enregistrer les modifications
+             {{ lienStore.loading ? 'Enregistrement...' : 'Enregistrer les modifications' }}
           </button>
         </div>
       </form>

@@ -1,18 +1,22 @@
 <template>
-    <div class="admin-layout" :class="{ 'is-collapsed': isCollapsed }">
-        <AdminSidebar :is-open="isSidebarOpen" :is-collapsed="isCollapsed" @close="isSidebarOpen = false" />
+    <div class="admin-layout-wrapper">
+        <AdminLoader :visible="isLoading" />
+        
+        <div class="admin-layout" :class="{ 'is-collapsed': isCollapsed }">
+            <AdminSidebar :is-open="isSidebarOpen" :is-collapsed="isCollapsed" @close="isSidebarOpen = false" />
 
-        <div class="admin-main">
-            <AdminTopbar @toggle-sidebar="isSidebarOpen = !isSidebarOpen"
-                @toggle-collapse="isCollapsed = !isCollapsed" />
+            <div class="admin-main">
+                <AdminTopbar @toggle-sidebar="isSidebarOpen = !isSidebarOpen"
+                    @toggle-collapse="isCollapsed = !isCollapsed" />
 
-            <main class="admin-content">
-                <slot />
-            </main>
+                <main class="admin-content">
+                    <slot />
+                </main>
+            </div>
+
+            <!-- Mobile Overlay -->
+            <div v-if="isSidebarOpen" class="sidebar-overlay" @click="isSidebarOpen = false"></div>
         </div>
-
-        <!-- Mobile Overlay -->
-        <div v-if="isSidebarOpen" class="sidebar-overlay" @click="isSidebarOpen = false"></div>
     </div>
 </template>
 
@@ -22,12 +26,29 @@ import { useMessageStore } from '~~/stores/message'
 
 const isSidebarOpen = ref(false)
 const isCollapsed = ref(false)
+const isLoading = ref(false)
+const router = useRouter()
 const route = useRoute()
 const messageStore = useMessageStore()
 
 onMounted(() => {
   // Lancer le polling des messages pour le badge dynamique
   messageStore.startPolling()
+
+  // Navigation hooks pour le loader
+  router.beforeEach((to, from, next) => {
+    // On ne montre pas le loader si on reste sur la même page (query change etc)
+    if (to.path !== from.path) {
+      isLoading.value = true
+    }
+    next()
+  })
+
+  router.afterEach(() => {
+    setTimeout(() => {
+        isLoading.value = false
+    }, 400) // Petit délai pour que l'animation soit visible
+  })
 })
 
 onUnmounted(() => {

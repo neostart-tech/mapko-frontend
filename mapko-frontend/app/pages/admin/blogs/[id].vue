@@ -33,13 +33,11 @@
             
             <div class="form-group mb-4">
               <label>Catégorie</label>
-              <select v-model="form.categorie" required class="custom-select focus-blue">
+              <select v-model="form.categorie" required class="custom-select focus-blue text-sm">
                 <option value="" disabled>Sélectionner une catégorie</option>
-                <option value="Actualités">Actualités</option>
-                <option value="Événements">Événements</option>
-                <option value="Étude de cas">Étude de cas</option>
-                <option value="Infrastructures">Infrastructures</option>
-                <option value="Énergies Renouvelables">Énergies Renouvelables</option>
+                <option v-for="secteur in sortedSecteurs" :key="secteur.id" :value="secteur.titre">
+                   {{ secteur.titre }}
+                </option>
               </select>
             </div>
 
@@ -102,9 +100,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, h } from 'vue'
+import { ref, onMounted, h, nextTick, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBlogStore } from '~~/stores/blog'
+import { useSecteurStore } from '~~/stores/secteur'
 import Swal from 'sweetalert2'
 import 'quill/dist/quill.snow.css';
 
@@ -113,6 +112,7 @@ definePageMeta({ layout: 'admin' })
 const route = useRoute()
 const router = useRouter()
 const blogStore = useBlogStore()
+const secteurStore = useSecteurStore()
 const config = useRuntimeConfig()
 const blogId = route.params.id as string
 
@@ -143,6 +143,8 @@ const getImageUrl = (path?: string) => {
 };
 
 onMounted(async () => {
+  secteurStore.fetch()
+  
   try {
     const data = await blogStore.show(blogId)
     const cover = data.images.find(img => img.is_couverture) || data.images[0]
@@ -151,7 +153,7 @@ onMounted(async () => {
     form.value = {
       titre: data.titre,
       categorie: data.categorie,
-      contenu: data.contenu,
+      contenu: data.contenu || '',
       couvertureFile: null,
       couverturePreview: cover ? getImageUrl(cover.path) : '',
       galerie: otherImages.map(img => ({
@@ -160,6 +162,12 @@ onMounted(async () => {
       }))
     }
 
+    // On désactive le chargement pour afficher le DOM
+    loadingBlog.value = false
+
+    // On attend le prochain cycle pour que editorContainer soit disponible
+    await nextTick()
+
     if (import.meta.client && editorContainer.value) {
       const Quill = (await import('quill')).default;
       quillInstance = new Quill(editorContainer.value, {
@@ -167,9 +175,10 @@ onMounted(async () => {
         placeholder: 'Rédigez le contenu complet de l\'article ici...',
         modules: {
           toolbar: [
-             [{ 'header': [1, 2, 3, false] }],
+             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
              ['bold', 'italic', 'underline', 'strike'],
              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+             [{ 'align': [] }],
              ['link', 'clean']
           ]
         }
@@ -184,9 +193,13 @@ onMounted(async () => {
   } catch (error) {
     Swal.fire('Erreur', 'Impossible de charger les données de l\'article.', 'error')
     router.push('/admin/blogs')
-  } finally {
     loadingBlog.value = false
   }
+})
+
+const sortedSecteurs = computed(() => {
+  const secteurs = [...secteurStore.secteurs].sort((a, b) => a.titre.localeCompare(b.titre))
+  return [...secteurs, { id: 'autre', titre: 'AUTRE' }]
 })
 
 const handleCoverUpload = (e: Event) => {

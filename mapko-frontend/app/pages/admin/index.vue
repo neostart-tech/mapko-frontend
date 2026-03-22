@@ -1,284 +1,400 @@
 <template>
-  <div class="dashboard">
+  <div class="dashboard-wrapper">
     <!-- Breadcrumb -->
     <AdminBreadcrumb :items="[{ label: 'Dashboard' }]" class="animate-reveal" />
 
-    <!-- Header -->
-    <div class="dashboard-header animate-reveal reveal-delay-1">
-      <div class="welcome-text">
-        <h1>Activité Globale</h1>
-        <p>Aperçu en temps réel de la performance de Mapko & Partners.</p>
+    <!-- BANNER / WELCOME -->
+    <div class="welcome-banner animate-reveal reveal-delay-1">
+      <div class="welcome-banner__content">
+        <h1 class="welcome-title">Content de vous revoir !</h1>
+        <p class="welcome-subtitle">Voici ce qui se passe sur Mapko & Partners aujourd'hui.</p>
+        <div class="welcome-actions">
+          <NuxtLink to="/admin/blogs/ajouter" class="btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nouvel Article
+          </NuxtLink>
+          <button class="btn-secondary" @click="refreshData">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            Rafraîchir
+          </button>
+        </div>
       </div>
-      <div class="header-actions">
-        <button class="btn-refresh" @click="refreshData">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-          Actualiser
-        </button>
-        <NuxtLink to="/admin/references/ajouter" class="btn-add">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          Créer un projet
-        </NuxtLink>
+      <div class="welcome-banner__img">
+        <img src="/images/logo_blanc.png" alt="Mapko Logo" />
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div 
-        v-for="(stat, idx) in stats" 
-        :key="stat.title" 
-        class="stat-card animate-reveal"
-        :class="'reveal-delay-' + (idx + 1)"
-      >
-        <div class="stat-card__icon" :style="{ background: stat.bg, color: stat.color }">
+    <!-- QUICK STATS -->
+    <div class="stats-container">
+      <div v-for="(stat, idx) in stats" :key="stat.title" 
+           class="premium-stat-card animate-reveal" 
+           :class="'reveal-delay-' + (idx + 1)">
+        <div class="stat-icon-box" :style="{ background: stat.bg, color: stat.color }">
           <component :is="stat.icon" />
         </div>
-        <div class="stat-card__content">
-           <p class="stat-label">{{ stat.title }}</p>
-           <h3 class="stat-value">{{ stat.value }}</h3>
-           <p class="stat-trend" :class="stat.trendUp ? 'trend-up' : 'trend-down'">
-             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline :points="stat.trendUp ? '23 6 13.5 15.5 8.5 10.5 1 18' : '23 18 13.5 8.5 8.5 13.5 1 6'"></polyline><polyline :points="stat.trendUp ? '17 6 23 6 23 12' : '17 18 23 18 23 12'"></polyline></svg>
-             {{ stat.trend }}%
-           </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Grid -->
-    <div class="dashboard-main-grid">
-      <!-- Recent Projects -->
-      <div class="card-section animate-reveal reveal-delay-3">
-        <div class="card-header">
-          <h3 class="card-title">Projets Récents</h3>
-          <NuxtLink to="/admin/references" class="card-link">Toute la liste</NuxtLink>
-        </div>
-        <div class="table-wrapper">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>PROJET</th>
-                <th>SECTEUR</th>
-                <th>STATUT</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="project in recentProjects" :key="project.id">
-                <td>
-                  <div class="prj-info">
-                    <p class="prj-name">{{ project.name }}</p>
-                    <p class="prj-meta">{{ project.country }}</p>
-                  </div>
-                </td>
-                <td><span class="badge-sct">{{ project.sector }}</span></td>
-                <td>
-                  <span class="status-token" :class="project.statusClass">
-                    {{ project.status }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Messages -->
-      <div class="card-section animate-reveal reveal-delay-4">
-        <div class="card-header">
-          <h3 class="card-title">Messages Récents</h3>
-          <NuxtLink to="/admin/messages" class="card-link">Lire tout</NuxtLink>
-        </div>
-        <div class="msgs-list">
-          <div v-for="msg in latestMessages" :key="msg.id" class="msg-item">
-            <div class="msg-avatar" :style="{ background: msg.avatarBg }">
-              {{ msg.author.charAt(0) }}
-            </div>
-            <div class="msg-body">
-              <div class="msg-meta-row">
-                <p class="msg-author">{{ msg.author }}</p>
-                <p class="msg-time">{{ msg.time }}</p>
-              </div>
-              <p class="msg-subj">{{ msg.subject }}</p>
-              <p class="msg-text">{{ msg.snippet }}</p>
-            </div>
+        <div class="stat-info">
+          <span class="stat-title">{{ stat.title }}</span>
+          <div class="stat-value-row">
+            <span class="stat-number">{{ stat.value }}</span>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="dashboard-grid">
+      
+      <!-- LEFT COL: Projects & Blogs -->
+      <div class="grid-col main-col">
+        
+        <!-- PROJECTS TABLE -->
+        <section class="mega-card animate-reveal reveal-delay-2">
+          <div class="mega-card__header">
+            <h2 class="mega-card__title">Projets Récents</h2>
+            <NuxtLink to="/admin/references" class="mega-card__link">Voir tout</NuxtLink>
+          </div>
+          <div class="table-container">
+            <table class="premium-table">
+              <thead>
+                <tr>
+                  <th>Projet</th>
+                  <th>Localisation</th>
+                  <th>Secteur</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="prj in recentProjects" :key="prj.id" @click="router.push(`/admin/references/${prj.id}`)">
+                  <td>
+                    <div class="item-name-cell">
+                      <div class="item-avatar">{{ prj.name.charAt(0) }}</div>
+                      <span>{{ prj.name }}</span>
+                    </div>
+                  </td>
+                  <td>{{ prj.country }}</td>
+                  <td><span class="sector-tag">{{ prj.sector }}</span></td>
+                  <td>
+                    <span class="status-pill" :class="prj.statusClass">{{ prj.status }}</span>
+                  </td>
+                </tr>
+                <tr v-if="!recentProjects.length">
+                  <td colspan="4" class="text-center py-8 text-gray-400">Aucun projet trouvé</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- LATEST BLOGS -->
+        <section class="mega-card animate-reveal reveal-delay-3 mt-6">
+          <div class="mega-card__header">
+            <h2 class="mega-card__title">Derniers Articles de Blog</h2>
+            <NuxtLink to="/admin/blogs" class="mega-card__link">Gérer les blogs</NuxtLink>
+          </div>
+          <div class="blogs-preview-grid">
+            <div v-for="blog in recentBlogs" :key="blog.id" class="blog-preview-card" @click="router.push(`/admin/blogs/${blog.id}`)">
+              <img :src="getImageUrl(blog.images?.find(i => i.is_couverture)?.path || blog.images?.[0]?.path)" alt="" class="blog-preview-img" />
+              <div class="blog-preview-content">
+                <span class="blog-preview-cat">{{ blog.categorie }}</span>
+                <h4 class="blog-preview-title">{{ blog.titre }}</h4>
+                <p class="blog-preview-date">{{ formatDate(blog.created_at) }}</p>
+              </div>
+            </div>
+            <div v-if="!recentBlogs.length" class="text-center py-8 text-gray-400 w-full col-span-2">
+              Démarrer en écrivant votre premier article !
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT COL: Messages -->
+      <div class="grid-col sidebar-col">
+        
+        <section class="mega-card animate-reveal reveal-delay-4 h-full">
+          <div class="mega-card__header">
+            <h2 class="mega-card__title">Messagerie</h2>
+            <NuxtLink to="/admin/messages" class="mega-card__link">Boîte de réception</NuxtLink>
+          </div>
+          <div class="messages-stack">
+            <div v-for="msg in latestMessages" :key="msg.id" class="message-row" :class="{ 'is-new': !msg.isRead }" @click="router.push('/admin/messages')">
+              <div class="message-user">
+                <div class="message-avatar" :style="{ background: msg.avatarBg }">
+                  {{ msg.author.charAt(0) }}
+                </div>
+                <div class="message-content">
+                  <div class="message-header">
+                    <span class="message-author">{{ msg.author }}</span>
+                    <span class="message-time">{{ msg.time }}</span>
+                  </div>
+                  <p class="message-subject">{{ msg.subject }}</p>
+                  <p class="message-snippet">{{ msg.snippet }}</p>
+                </div>
+              </div>
+            </div>
+            <div v-if="!latestMessages.length" class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="1"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <p>Aucun message pour le moment</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, h } from 'vue'
+import { h, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useBlogStore } from '~~/stores/blog'
+import { useReferenceStore } from '~~/stores/reference'
+import { useSecteurStore } from '~~/stores/secteur'
+import { useMessageStore } from '~~/stores/message'
+import { usePartenaireStore } from '~~/stores/partenaire'
 
 definePageMeta({
   layout: 'admin'
 })
 
-// Custom SVG Icons
-const IconBriefcase = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('rect', { x: '2', y: '7', width: '20', height: '14', rx: '2', ry: '2' }), h('path', { d: 'M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16' })])
-const IconMail = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('path', { d: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z' }), h('polyline', { points: '22,6 12,13 2,6' })])
-const IconUsers = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('path', { d: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2' }), h('circle', { cx: '9', cy: '7', r: '4' }), h('path', { d: 'M23 21v-2a4 4 0 0 0-3-3.87' }), h('path', { d: 'M16 3.13a4 4 0 0 1 0 7.75' })])
+const router = useRouter()
+const config = useRuntimeConfig()
+const blogStore = useBlogStore()
+const referenceStore = useReferenceStore()
+const secteurStore = useSecteurStore()
+const messageStore = useMessageStore()
+const partenaireStore = usePartenaireStore()
 
-const stats = ref([
-  { title: 'Projets Actifs', value: '12', trend: '+15', trendUp: true, icon: IconBriefcase, color: '#7A2E8E', bg: 'rgba(122, 46, 142, 0.1)' },
-  { title: 'Derniers Messages', value: '03', trend: '-2', trendUp: false, icon: IconMail, color: '#0F4C81', bg: 'rgba(15, 76, 129, 0.1)' },
-  { title: 'Partenaires', value: '24', trend: '+5', trendUp: true, icon: IconUsers, color: '#7A2E8E', bg: 'rgba(122, 46, 142, 0.1)' },
+// Icons
+const IconBriefcase = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('rect', { x: '2', y: '7', width: '20', height: '14', rx: '2' }), h('path', { d: 'M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16' })])
+const IconMail = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z' }), h('polyline', { points: '22,6 12,13 2,6' })])
+const IconUsers = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2' }), h('circle', { cx: '9', cy: '7', r: '4' })])
+const IconGrid = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('rect', { x: '3', y: '3', width: '7', height: '7' }), h('rect', { x: '14', y: '3', width: '7', height: '7' }), h('rect', { x: '14', y: '14', width: '7', height: '7' }), h('rect', { x: '3', y: '14', width: '7', height: '7' })])
+
+const stats = computed(() => [
+  { title: 'Projets', value: referenceStore.references.length, icon: IconBriefcase, color: 'var(--color-violet)', bg: 'rgba(122, 46, 142, 0.1)' },
+  { title: 'Secteurs', value: secteurStore.secteurs.length, icon: IconGrid, color: 'var(--color-blue)', bg: 'rgba(15, 76, 129, 0.1)' },
+  { title: 'Partenaires', value: partenaireStore.partenaires.length, icon: IconUsers, color: 'var(--color-violet)', bg: 'rgba(122, 46, 142, 0.1)' },
+  { title: 'Messages', value: messageStore.unreadCount, icon: IconMail, color: 'var(--color-blue)', bg: 'rgba(15, 76, 129, 0.1)' },
 ])
 
-const recentProjects = [
-  { id: 1, name: 'Projet Logistique', country: 'Togo', sector: 'Transport', status: 'En cours', statusClass: 'st-vlt' },
-  { id: 2, name: 'Centrale Solaire', country: 'Bénin', sector: 'Energie', status: 'Finalisé', statusClass: 'st-blu' },
-  { id: 3, name: 'Palais Justice', country: 'Côte d\'Ivoire', sector: 'BTP', status: 'En cours', statusClass: 'st-vlt' },
-]
+const recentProjects = computed(() => {
+  return [...referenceStore.references]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5)
+    .map(p => ({
+      id: p.id,
+      name: p.titre,
+      country: p.pays,
+      sector: p.secteur?.titre || 'N/A',
+      status: p.statut === 'termine' ? 'Terminé' : 'En cours',
+      statusClass: p.statut === 'termine' ? 'st-done' : 'st-process'
+    }))
+})
 
-const latestMessages = [
-  { id: 1, author: 'K. Mensah', time: 'Il y a 2h', subject: 'Demande conseil', snippet: 'Question sur la logistique...', avatarBg: '#7A2E8E' },
-  { id: 2, author: 'S. Diallo', time: 'Il y a 5h', subject: 'Partenariat', snippet: 'Opportunité de collaboration...', avatarBg: '#0F4C81' },
-]
+const recentBlogs = computed(() => {
+  return [...blogStore.blogs]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 2)
+})
 
-const refreshData = () => {
-    console.log('Refresh data triggered')
+const latestMessages = computed(() => {
+  return [...messageStore.messages]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5)
+    .map(m => ({
+      id: m.id,
+      author: m.expediteur,
+      time: formatDate(m.created_at),
+      subject: m.objet,
+      snippet: m.contenu.length > 50 ? m.contenu.substring(0, 50) + '...' : m.contenu,
+      isRead: m.statut,
+      avatarBg: m.statut ? '#cbd5e1' : `linear-gradient(135deg, var(--color-violet), var(--color-blue))`
+    }))
+})
+
+const getImageUrl = (path?: string) => {
+  if (!path) return '/images/blog-placeholder.jpg';
+  return `${config.public.storageBase}/${path}`;
+};
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  const diff = new Date().getTime() - date.getTime()
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  if (hours < 24) return hours === 0 ? 'À l\'instant' : `Il y a ${hours}h`
+  return date.toLocaleDateString('fr-FR')
 }
+
+const refreshData = async () => {
+    await Promise.all([
+      blogStore.fetch(),
+      referenceStore.fetch(),
+      secteurStore.fetch(),
+      messageStore.fetch(),
+      partenaireStore.fetch()
+    ])
+}
+
+onMounted(() => {
+  refreshData()
+})
 </script>
 
 <style scoped>
-.dashboard { display: flex; flex-direction: column; }
-
-/* Header */
-.dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  gap: 1.5rem;
+.dashboard-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.welcome-text h1 {
-  font-size: 1.5rem;
-  font-weight: 700; /* Gras diminué */
-  color: #000000;
-  margin: 0;
-}
-
-.welcome-text p {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin-top: 0.25rem;
-}
-
-.header-actions { display: flex; gap: 0.75rem; }
-
-.btn-refresh, .btn-add {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-refresh {
-  background: #ffffff;
-  color: #000000;
-  border: 1px solid #eef2f6;
-}
-
-.btn-add {
-  background: var(--color-violet);
+/* --- BANNER --- */
+.welcome-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 20px;
+  padding: 1.75rem 2.5rem;
   color: #ffffff;
-  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
 }
 
-.btn-add:hover { filter: brightness(1.1); }
+.welcome-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+.welcome-subtitle { font-size: 0.95rem; opacity: 0.7; margin-bottom: 1.25rem; }
 
-/* Stats */
-.stats-grid {
+.welcome-actions { display: flex; gap: 0.75rem; }
+.btn-primary { 
+  background: var(--color-violet); color: #ffffff; border: none; padding: 0.6rem 1.2rem; border-radius: 10px;
+  display: flex; align-items: center; gap: 0.5rem; font-weight: 700; text-decoration: none; transition: transform 0.2s; font-size: 0.85rem;
+}
+.btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+.btn-secondary {
+  background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); padding: 0.6rem 1.2rem; border-radius: 10px;
+  display: flex; align-items: center; gap: 0.5rem; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+.welcome-banner__img img { height: 80px; pointer-events: none; }
+
+/* --- STATS --- */
+.stats-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
   margin-bottom: 2rem;
 }
 
-.stat-card {
+.premium-stat-card {
   background: #ffffff;
-  padding: 1.5rem;
+  padding: 1.1rem 1.25rem;
   border-radius: 16px;
-  border: 1px solid #eef2f6;
+  border: 1px solid #f1f5f9;
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
+.premium-stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
 
-.stat-card:hover { transform: translateY(-4px); }
-
-.stat-card__icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.stat-icon-box {
+  width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
+.stat-icon-box :deep(svg) { width: 18px; height: 18px; }
 
-.stat-label { font-size: 0.7rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; margin: 0; }
-.stat-value { font-size: 1.25rem; font-weight: 700; color: #000000; margin: 0.1rem 0; }
-.stat-trend { font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 0.2rem; }
-.trend-up { color: var(--color-violet); }
-.trend-down { color: var(--color-blue); }
+.stat-info { display: flex; flex-direction: column; overflow: hidden; }
+.stat-title { font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.15rem; }
+.stat-number { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
 
-/* Sections */
-.dashboard-main-grid {
+/* --- GRID --- */
+.dashboard-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
+  grid-template-columns: 1fr 360px;
   gap: 1.5rem;
 }
 
-.card-section {
+@media (max-width: 1200px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+.mega-card {
   background: #ffffff;
   border-radius: 20px;
-  border: 1px solid #eef2f6;
+  border: 1px solid #f1f5f9;
   padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
-.card-header {
+.mega-card__header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.25rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
-.card-title { font-size: 1rem; font-weight: 700; color: #000000; margin: 0; }
-.card-link { font-size: 0.8rem; font-weight: 600; color: var(--color-blue); text-decoration: none; }
+.mega-card__title { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+.mega-card__link { color: var(--color-blue); font-size: 0.8rem; font-weight: 700; text-decoration: none; }
 
-/* Table */
-.table-wrapper { overflow-x: auto; }
-.admin-table { width: 100%; border-collapse: collapse; }
-.admin-table th { text-align: left; font-size: 0.65rem; color: #94a3b8; padding: 0.75rem 1rem; border-bottom: 2px solid #f8fafc; }
-.admin-table td { padding: 1.1rem 1rem; border-bottom: 1px solid #f8fafc; }
+/* --- TABLE --- */
+.table-container { overflow-x: auto; }
+.premium-table { width: 100%; border-collapse: separate; border-spacing: 0 0.75rem; margin-top: -0.75rem; }
+.premium-table th { text-align: left; padding: 1rem; color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; border-bottom: 1px solid #f8fafc; }
+.premium-table td { padding: 1rem; background: #ffffff; border-bottom: 1px solid #f8fafc; cursor: pointer; transition: background 0.2s; }
+.premium-table tr:hover td { background: #f8fafc; }
 
-.prj-name { font-weight: 600; color: #000000; font-size: 0.85rem; margin: 0; }
-.prj-meta { font-size: 0.75rem; color: #94a3b8; margin: 0; }
-.badge-sct { background: rgba(15, 76, 129, 0.05); color: var(--color-blue); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.item-name-cell { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: #0f172a; }
+.item-avatar {
+  width: 32px; height: 32px; border-radius: 8px; background: #f1f5f9; color: var(--color-violet);
+  display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+}
 
-.status-token { padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.7rem; font-weight: 700; }
-.st-vlt { background: #fdf4ff; color: var(--color-violet); }
-.st-blu { background: #eff6ff; color: var(--color-blue); }
+.sector-tag { background: #f1f5f9; color: #475569; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+.status-pill { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
+.st-done { background: #eff6ff; color: var(--color-blue); }
+.st-process { background: #fdf4ff; color: var(--color-violet); }
 
-/* Msgs */
-.msgs-list { display: flex; flex-direction: column; gap: 1rem; }
-.msg-item { display: flex; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid #f8fafc; }
-.msg-item:last-child { border: none; }
-.msg-avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 700; flex-shrink: 0; }
-.msg-meta-row { display: flex; justify-content: space-between; }
-.msg-author { font-weight: 600; color: #000000; font-size: 0.85rem; margin: 0; }
-.msg-time { font-size: 0.7rem; color: #94a3b8; }
-.msg-subj { font-size: 0.75rem; font-weight: 700; color: var(--color-violet); margin: 0 0 0.1rem; }
-.msg-text { font-size: 0.75rem; color: #64748b; line-height: 1.3; margin: 0; }
+/* --- BLOGS PREVIEW --- */
+.blogs-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 640px) { .blogs-preview-grid { grid-template-columns: 1fr; } }
 
-@media (max-width: 1100px) {
-  .dashboard-main-grid { grid-template-columns: 1fr; }
+.blog-preview-card {
+  display: flex; gap: 1rem; padding: 1rem; border-radius: 16px; background: #f8fafc; cursor: pointer; transition: all 0.2s;
+}
+.blog-preview-card:hover { background: #f1f5f9; transform: scale(1.02); }
+
+.blog-preview-img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; }
+.blog-preview-content { display: flex; flex-direction: column; justify-content: center; }
+.blog-preview-cat { color: var(--color-blue); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+.blog-preview-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0.1rem 0; line-height: 1.3; }
+.blog-preview-date { font-size: 0.75rem; color: #94a3b8; }
+
+/* --- MESSAGES --- */
+.messages-stack { display: flex; flex-direction: column; gap: 1rem; }
+.message-row { 
+  padding: 1.25rem; border-radius: 16px; border: 1px solid #f1f5f9; cursor: pointer; transition: all 0.2s;
+}
+.message-row:hover { background: #f8fafc; border-color: var(--color-violet-light); }
+.message-row.is-new { background: #fdf4ff; border-color: #f5d0fe; }
+
+.message-user { display: flex; gap: 1rem; }
+.message-avatar { 
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: flex;
+  align-items: center; justify-content: center; color: #ffffff; font-weight: 800;
+}
+
+.message-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+.message-author { font-size: 0.9rem; font-weight: 700; color: #0f172a; }
+.message-time { font-size: 0.7rem; color: #94a3b8; }
+.message-subject { font-size: 0.8rem; font-weight: 800; color: var(--color-violet); margin-bottom: 0.1rem; }
+.message-snippet { font-size: 0.8rem; color: #64748b; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 4rem 2rem; color: #94a3b8; gap: 1rem; text-align: center;
 }
 </style>

@@ -1,65 +1,65 @@
 <template>
   <div class="contact-page">
-    
+
     <!-- HERO -->
     <section class="contact-hero">
       <div class="contact-hero__bg">
         <img src="/images/contact-bg.jpg" alt="Mapko & Partners Office" class="contact-hero__img" />
         <div class="contact-hero__overlay" />
       </div>
-      <div class="contact-hero__container" :class="{ 'is-visible': isHeroVisible }">
-        <h1 class="contact-hero__eyebrow animate-reveal">Contact</h1>
-        <h2 class="contact-hero__title animate-reveal">
+      <div class="contact-hero__container">
+        <h1 class="contact-hero__eyebrow reveal">Contact</h1>
+        <h2 class="contact-hero__title reveal delay-100">
           Engageons le dialogue pour vos projets
         </h2>
-        <p class="contact-hero__subtitle animate-reveal">
-          Une question ? Un projet de transformation ? Nos équipes panafricaines sont à votre écoute pour vous apporter des solutions sur mesure.
+        <p class="contact-hero__subtitle reveal delay-200">
+          Une question ? Un projet de transformation ? Nos équipes panafricaines sont à votre écoute pour vous apporter
+          des solutions sur mesure.
         </p>
       </div>
     </section>
 
     <!-- CONTENT -->
-    <section class="contact-content" ref="contentSection" :class="{ 'is-visible': isContentVisible }">
+    <section class="contact-content">
       <div class="contact-content__container">
-        
+
         <div class="contact-grid">
-          
+
           <!-- FORMULAIRE -->
-          <div class="contact-form-wrapper animate-reveal">
+          <div class="contact-form-wrapper reveal delay-300">
             <div class="form-card">
               <h3 class="form-title">Envoyez-nous un message</h3>
               <form @submit.prevent="handleSubmit" class="form">
                 <div class="form-group">
                   <label for="name">Nom complet</label>
-                  <input type="text" id="name" v-model="form.name" placeholder="Votre nom" required />
+                  <input type="text" id="name" v-model="form.expediteur" placeholder="Votre nom" required />
                 </div>
-                
+
                 <div class="form-row">
                   <div class="form-group">
                     <label for="email">Email professionnel</label>
                     <input type="email" id="email" v-model="form.email" placeholder="votre@email.com" required />
                   </div>
                   <div class="form-group">
-                    <label for="phone">Téléphone</label>
-                    <input type="tel" id="phone" v-model="form.phone" placeholder="votre numéro" required />
+                    <label for="phone">Téléphone (Optionnel)</label>
+                    <input type="tel" id="phone" v-model="form.telephone" placeholder="votre numéro avec indicatif" />
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label for="subject">Objet de votre demande</label>
-                  <select id="subject" v-model="form.subject" required>
+                  <select id="subject" v-model="form.objet" required>
                     <option value="" disabled selected>Sélectionnez un sujet</option>
-                    <option value="Prestation">Conseil & Prestation</option>
-                    <option value="Rendez-vous">Demande de rendez-vous</option>
-                    <option value="Recrutement">Recrutement / Carrières</option>
-                    <option value="Partenariat">Partenariat</option>
-                    <option value="Autre">Autre demande</option>
+                    <option v-for="secteur in sortedSecteurs" :key="secteur.id" :value="secteur.titre">
+                      {{ secteur.titre }}
+                    </option>
                   </select>
                 </div>
 
                 <div class="form-group">
                   <label for="message">Message</label>
-                  <textarea id="message" v-model="form.message" rows="7" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+                  <textarea id="message" v-model="form.contenu" rows="7" placeholder="Comment pouvons-nous vous aider ?"
+                    required></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit" :disabled="isSubmitting">
@@ -71,20 +71,30 @@
 
           <!-- COORDONNEES -->
           <div class="contact-info-wrapper">
-            <div 
-              v-for="(office, index) in offices" 
-              :key="office.city" 
-              class="office-card animate-reveal"
-              :style="{ 'animation-delay': (0.15 * index) + 's' }"
-            >
+            <div v-for="(office, index) in offices" :key="office.city" class="office-card reveal"
+              :style="{ 'transition-delay': (0.15 * index + 0.3) + 's' }">
               <div class="office-card__header">
                 <div class="office-flag">
                   <!-- Togo Flag -->
-                  <svg v-if="office.city === 'Lomé'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 307"><path fill="#006a4e" d="M0 0h512v307H0z"/><path fill="#ffce00" d="M0 61.4h512v61.4H0zm0 122.8h512v61.4H0z"/><path fill="#d21034" d="M0 0h184.2v184.2H0z"/><path fill="#fff" d="m92.1 138-23.7 17.2 9-27.9L53.7 110h29.3L92.1 82l9.1 28h29.3l-23.7 17.3 9.1 27.9z"/></svg>
+                  <svg v-if="office.city === 'Lomé'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 307">
+                    <path fill="#006a4e" d="M0 0h512v307H0z" />
+                    <path fill="#ffce00" d="M0 61.4h512v61.4H0zm0 122.8h512v61.4H0z" />
+                    <path fill="#d21034" d="M0 0h184.2v184.2H0z" />
+                    <path fill="#fff"
+                      d="m92.1 138-23.7 17.2 9-27.9L53.7 110h29.3L92.1 82l9.1 28h29.3l-23.7 17.3 9.1 27.9z" />
+                  </svg>
                   <!-- Benin Flag -->
-                  <svg v-if="office.city === 'Cotonou'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 341"><path fill="#e8112d" d="M0 0h512v341H0z"/><path fill="#fcd116" d="M0 0h512v170.7H0z"/><path fill="#008751" d="M0 0h204.8v341H0z"/></svg>
+                  <svg v-if="office.city === 'Cotonou'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 341">
+                    <path fill="#e8112d" d="M0 0h512v341H0z" />
+                    <path fill="#fcd116" d="M0 0h512v170.7H0z" />
+                    <path fill="#008751" d="M0 0h204.8v341H0z" />
+                  </svg>
                   <!-- Ivory Coast Flag -->
-                  <svg v-if="office.city === 'Abidjan'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 341"><path fill="#009e60" d="M0 0h512v341H0z"/><path fill="#fff" d="M0 0h341.3v341H0z"/><path fill="#f77f00" d="M0 0h170.7v341H0z"/></svg>
+                  <svg v-if="office.city === 'Abidjan'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 341">
+                    <path fill="#009e60" d="M0 0h512v341H0z" />
+                    <path fill="#fff" d="M0 0h341.3v341H0z" />
+                    <path fill="#f77f00" d="M0 0h170.7v341H0z" />
+                  </svg>
                 </div>
                 <h4 class="office-city">{{ office.city }} <small v-if="office.isHq">(Siège)</small></h4>
               </div>
@@ -92,7 +102,12 @@
                 <p class="office-address">{{ office.address }}</p>
                 <div class="office-contact">
                   <a :href="'tel:' + office.tel.replace(/\s/g, '')" class="contact-link">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                      </path>
+                    </svg>
                     {{ office.tel }}
                   </a>
                 </div>
@@ -100,10 +115,14 @@
             </div>
 
             <!-- Global Email Link -->
-            <div class="global-contact animate-reveal" style="animation-delay: 0.6s">
+            <div class="global-contact reveal delay-500">
               <span class="global-contact__label">Besoin d'un renseignement ?</span>
               <a href="mailto:contact@mapko-partners.com" class="global-contact__link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
                 Nous envoyer un mail
               </a>
             </div>
@@ -118,65 +137,84 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useSecteurStore } from '~~/stores/secteur'
+import { useMessageStore } from '~~/stores/message'
+import Swal from 'sweetalert2'
 
-const isHeroVisible = ref(false)
-const isContentVisible = ref(false)
-const contentSection = ref<HTMLElement | null>(null)
+const secteurStore = useSecteurStore()
+const messageStore = useMessageStore()
+
 const isSubmitting = ref(false)
 
 const form = ref({
-  name: '',
+  expediteur: '',
   email: '',
-  phone: '',
-  subject: '',
-  message: ''
+  telephone: '',
+  objet: '',
+  contenu: ''
+})
+
+const sortedSecteurs = computed(() => {
+  const secteurs = [...secteurStore.secteurs].sort((a, b) => a.titre.localeCompare(b.titre))
+  return [...secteurs, { id: 'autre', titre: 'AUTRE' }]
 })
 
 const offices = [
   {
     city: 'Lomé',
     isHq: true,
-    flag: '🇹🇬',
     address: 'Adidogomé, Lomé - Togo',
     tel: '+228 91 11 82 75',
-    email: 'contact@mapko-partners.com'
   },
   {
     city: 'Cotonou',
     isHq: false,
-    flag: '🇧🇯',
     address: 'Avenue de la victoire, Gbèwa, Bénin - Cotonou',
     tel: '+229 01 98 63 61 12',
-    email: 'contact@mapko-partners.com'
   },
   {
     city: 'Abidjan',
     isHq: false,
-    flag: '🇨🇮',
     address: 'Riviera Attoban, Cocody, Abidjan - Côte d\'Ivoire',
     tel: '+225 01 60 60 74 55',
-    email: 'contact@mapko-partners.com'
   }
 ]
 
-onMounted(() => {
-  isHeroVisible.value = true
-  const observer = new IntersectionObserver((entries) => {
-    if (entries[0]?.isIntersecting) {
-      isContentVisible.value = true
-    }
-  }, { threshold: 0.1 })
-  if (contentSection.value) observer.observe(contentSection.value)
+onMounted(async () => {
+  secteurStore.fetch()
 })
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
+  // Validation (telephone est facultatif)
+  if (!form.value.expediteur || !form.value.email || !form.value.objet || !form.value.contenu) {
+    Swal.fire('Attention', 'Veuillez remplir tous les champs obligatoires.', 'warning')
+    return
+  }
+
   isSubmitting.value = true
-  setTimeout(() => {
+  try {
+    await messageStore.store({
+      expediteur: form.value.expediteur,
+      email: form.value.email,
+      telephone: form.value.telephone,
+      objet: form.value.objet,
+      contenu: form.value.contenu
+    })
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Message envoyé',
+      text: 'Nous avons bien reçu votre demande et reviendrons vers vous rapidement.',
+      confirmButtonColor: '#0f4c81'
+    })
+
+    form.value = { expediteur: '', email: '', telephone: '', objet: '', contenu: '' }
+  } catch (error) {
+    Swal.fire('Erreur', 'Une erreur est survenue lors de l\'envoi de votre message.', 'error')
+  } finally {
     isSubmitting.value = false
-    alert('Merci ! Votre message a bien été envoyé.')
-    form.value = { name: '', email: '', phone: '', subject: '', message: '' }
-  }, 1500)
+  }
 }
 
 useHead({
@@ -491,16 +529,7 @@ useHead({
 }
 
 /* ── ANIMATIONS ── */
-.animate-reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.is-visible .animate-reveal {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* Animations gérées globalement par .reveal */
 
 /* ── MOBILE ── */
 @media (max-width: 1024px) {
@@ -511,10 +540,24 @@ useHead({
 }
 
 @media (max-width: 640px) {
-  .contact-hero { padding: 5rem 1rem 3rem; }
-  .contact-content { padding: 4rem 1rem; }
-  .form-card { padding: 2rem; }
-  .form-row { grid-template-columns: 1fr; }
-  .office-card { padding: 1.5rem; }
+  .contact-hero {
+    padding: 5rem 1rem 3rem;
+  }
+
+  .contact-content {
+    padding: 4rem 1rem;
+  }
+
+  .form-card {
+    padding: 2rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .office-card {
+    padding: 1.5rem;
+  }
 }
 </style>

@@ -130,9 +130,9 @@
             <template #statut="data">
                <span 
                  class="px-3 py-1 text-xs font-bold rounded-full border"
-                 :class="data.value.statut === 'en-cours' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-blue-700 border-blue-200'"
+                 :class="data.value.statut === 'en_cours' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-blue-700 border-blue-200'"
                >
-                 {{ data.value.statut === 'en-cours' ? 'En cours' : 'Terminé' }}
+                 {{ data.value.statut === 'en_cours' ? 'En cours' : 'Terminé' }}
                </span>
             </template>
 
@@ -197,11 +197,12 @@ const handleClickOutside = (e: MouseEvent) => {
 }
 
 const filteredReferences = computed(() => {
-  let data = referenceStore.references;
+  let data = [...referenceStore.references];
   if (filterStatus.value !== 'all') {
     data = data.filter(r => r.statut === filterStatus.value);
   }
-  return data;
+  // Tri par titre alphabétique (ASC)
+  return data.sort((a, b) => a.titre.localeCompare(b.titre));
 });
 
 const resetFilters = () => {

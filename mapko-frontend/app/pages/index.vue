@@ -9,13 +9,13 @@
       </div>
       <div class="hero__content">
         <div class="hero__inner">
-          <h1 class="hero__title animate-reveal">
+          <h1 class="hero__title reveal">
             <span class="hero__title-line-highlight">{{ typedText }}<span class="typewriter-cursor">|</span></span>
           </h1>
-          <p class="hero__subtitle animate-fade-in">
+          <p class="hero__subtitle reveal delay-200">
             Cabinet de conseil stratégique, financier et organisationnel en Afrique
           </p>
-          <div class="hero__actions">
+          <div class="hero__actions reveal delay-400">
             <a href="#expertises" class="hero__btn hero__btn--primary">
               Découvrir nos expertises
             </a>
@@ -28,7 +28,7 @@
     </section>
 
     <!-- 2. CHIFFRES CLÉS (STATS) -->
-    <section class="stats animate-reveal" ref="statsSection">
+    <section class="stats reveal" ref="statsSection">
       <div class="stats__inner">
         <div v-for="(stat, idx) in statsData" :key="idx" class="stats__item">
           <div class="stats__val">
@@ -48,7 +48,7 @@
           <h3 class="section-title">Conseil de haut niveau pour projets d'envergure</h3>
         </div>
         <div class="expertise__grid">
-          <div v-for="(exp, idx) in expertises" :key="idx" class="exp-card animate-reveal" :style="{ 'animation-delay': (idx * 0.1) + 's' }">
+          <div v-for="(exp, idx) in expertises" :key="idx" class="exp-card reveal" :style="{ 'transition-delay': (idx * 0.1) + 's' }">
             <div class="exp-card__icon" v-html="exp.icon" />
             <h4 class="exp-card__title">{{ exp.title }}</h4>
             <p class="exp-card__desc">{{ exp.desc }}</p>
@@ -67,7 +67,7 @@
         </div>
         
         <div class="sectors__list">
-          <div v-for="(sector, idx) in sectors" :key="idx" class="sector-line animate-reveal" :style="{ 'animation-delay': (idx * 0.05) + 's' }">
+          <div v-for="(sector, idx) in sectors" :key="idx" class="sector-line reveal" :style="{ 'transition-delay': (idx * 0.05) + 's' }">
             <div class="sector-line__icon">
               <!-- Utilisation d'icônes SVG (Lucide / Feather style) -->
               <div v-if="sector.icon === 'agro'" class="s-icon">
@@ -111,7 +111,7 @@
     </section>
 
     <!-- 5. PROJETS RÉCENTS -->
-    <section class="projects animate-reveal" id="projets" ref="projectsSection">
+    <section class="projects reveal" id="projets" ref="projectsSection">
       <div class="projects__container">
         <div class="projects__header">
           <h2 class="section-eyebrow section-eyebrow--light">Réalisations récentes</h2>
@@ -155,7 +155,7 @@
 
         <!-- Droite : Les points forts -->
         <div class="why__grid">
-          <div v-for="(reason, idx) in reasons" :key="idx" class="why-item animate-reveal" :style="{ 'animation-delay': (idx * 0.2) + 's' }">
+          <div v-for="(reason, idx) in reasons" :key="idx" class="why-item reveal" :style="{ 'transition-delay': (idx * 0.2) + 's' }">
             <div class="why-item__icon" v-html="reason.icon" />
             <div class="why-item__text">
               <h4 class="why-item__title">{{ reason.title }}</h4>

@@ -6,10 +6,10 @@
         <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600" alt="Mapko Blogs" class="blogs-hero__img" />
         <div class="blogs-hero__overlay" />
       </div>
-      <div class="blogs-hero__container is-visible">
-        <h1 class="blogs-hero__eyebrow animate-reveal">Nos Blogs</h1>
-        <h2 class="blogs-hero__title animate-reveal">Actualités & Analyses</h2>
-        <p class="blogs-hero__subtitle animate-reveal reveal-delay-1">
+      <div class="blogs-hero__container">
+        <h1 class="blogs-hero__eyebrow reveal">Nos Blogs</h1>
+        <h2 class="blogs-hero__title reveal delay-100">Actualités & Analyses</h2>
+        <p class="blogs-hero__subtitle reveal delay-200">
           Découvrez nos connaissances, nos réflexions et les dernières actualités expertes de l'industrie.
         </p>
       </div>
@@ -22,7 +22,7 @@
         <!-- MAIN CONTENT -->
         <main class="blogs-main">
           
-          <div v-if="paginatedBlogs.length === 0" class="no-results shadow-card animate-reveal">
+          <div v-if="paginatedBlogs.length === 0" class="no-results shadow-card reveal">
             <p>Aucun article trouvé pour "{{ searchQuery }}".</p>
             <button @click="searchQuery = ''" class="btn-reset">Réinitialiser la recherche</button>
           </div>
@@ -32,17 +32,17 @@
               v-for="(blog, index) in paginatedBlogs" 
               :key="blog.id" 
               :to="`/blogs/${blog.id}`"
-              class="blog-card shadow-card animate-reveal"
-              :style="{ 'animation-delay': (index * 0.1) + 's' }"
+              class="blog-card shadow-card reveal"
+              :style="{ 'transition-delay': (index * 0.1) + 's' }"
             >
               <div class="blog-card__image-container">
-                <img :src="blog.couverture" :alt="blog.titre" class="blog-card__img" />
+                <img :src="getImageUrl(blog.images?.find(img => img.is_couverture)?.path || blog.images?.[0]?.path)" :alt="blog.titre" class="blog-card__img" />
                 <span class="blog-card__category">{{ blog.categorie }}</span>
               </div>
               <div class="blog-card__content">
                 <div class="blog-card__meta">
                   <svg xmlns="http://www.w3.org/2000/svg" class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span>{{ formatDate(blog.date) }}</span>
+                  <span>{{ formatDate(blog.created_at) }}</span>
                 </div>
                 <h2 class="blog-card__title">{{ blog.titre }}</h2>
                 <p class="blog-card__excerpt" v-html="generateExcerpt(blog.contenu)"></p>
@@ -76,7 +76,7 @@
 
         <!-- SIDEBAR -->
         <aside class="blogs-sidebar">
-          <div class="sidebar-widget search-widget shadow-card animate-reveal">
+          <div class="sidebar-widget search-widget shadow-card reveal">
             <h3 class="widget-title">Rechercher</h3>
             <div class="search-input-wrap">
               <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -84,7 +84,7 @@
             </div>
           </div>
 
-          <div class="sidebar-widget categories-widget shadow-card animate-reveal reveal-delay-1">
+          <div class="sidebar-widget categories-widget shadow-card reveal delay-100">
             <h3 class="widget-title">Catégories</h3>
             <ul class="category-list">
               <li 
@@ -110,7 +110,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useBlogStore } from '~~/stores/blog'
+import { useSecteurStore } from '~~/stores/secteur'
 
 useHead({
   title: 'Nos Blogs - Mapko & Partners',
@@ -119,65 +121,49 @@ useHead({
   ]
 })
 
-// Mock Data
-const allBlogs = ref([
-  { 
-    id: 1, 
-    titre: 'Les nouvelles initiatives en énergie solaire et l\'impact global', 
-    categorie: 'Énergies Renouvelables',
-    contenu: 'Face au réchauffement climatique, notre nouvelle approche pour le développement énergétique permet de réduire les empreintes carbone de façon drastique. Le photovoltaïque s\'impose aujourd\'hui comme le premier vecteur d\'investissement propre en Afrique.', 
-    date: '2026-03-20',
-    couverture: 'https://images.unsplash.com/photo-1509391366360-12009cb9f3ac?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 2, 
-    titre: 'Modernisation des infrastructures de transport en Afrique', 
-    categorie: 'Infrastructures',
-    contenu: 'La logistique de transport moderne passe par la rationalisation des réseaux routiers existants, notamment par l\'utilisation de solutions d\'intelligence artificielle pour la gestion du trafic et des flottes marchandes.', 
-    date: '2026-03-10',
-    couverture: 'https://images.unsplash.com/photo-1541888081622-3a27a36cb3a1?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 3, 
-    titre: 'Conférence annuelle de logistique : Les retours d\'expérience', 
-    categorie: 'Événements',
-    contenu: 'Nous étions présents à la dernière grande convention sur la logistique transport au mois de février. L\'occasion d\'aborder les enjeux de l\'import/export sécurisé sur le continent, mais aussi au niveau global.', 
-    date: '2026-02-28',
-    couverture: 'https://images.unsplash.com/photo-1586528116311-ad8ed7c1524f?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 4, 
-    titre: 'Étude d\'impact sociétal : Projet Horizon', 
-    categorie: 'Étude de cas',
-    contenu: 'Comment mesurer le retentissement direct et indirect de la création d\'une nouvelle agence en milieu semi-rural ? Notre étude complète de 30 pages révèle que l\'impact se compte en centaines d\'emplois stabilisés indirectement.', 
-    date: '2026-01-15',
-    couverture: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 5, 
-    titre: 'Le rôle clé de la finance verte dans les PME', 
-    categorie: 'Actualités',
-    contenu: 'Il est plus que temps d\'impliquer les plus petites structures dans la dimension "Verte" de leurs finances. De nouvelles subventions permettent d\'amortir ces transitions en l\'espace de quelques mois.', 
-    date: '2025-12-05',
-    couverture: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800'
-  }
-])
+const route = useRoute()
+const blogStore = useBlogStore()
+const secteurStore = useSecteurStore()
+const config = useRuntimeConfig()
 
 // Pagination & Search settings
 const searchQuery = ref('')
 const currentPage = ref(1)
-const itemsPerPage = 3
+const itemsPerPage = 6
+
+const getImageUrl = (path?: string) => {
+  if (!path) return '/images/blog-placeholder.jpg';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
+onMounted(async () => {
+  await blogStore.fetch()
+  await secteurStore.fetch()
+  
+  // Si on vient d'une recherche (ex: depuis le détail blog)
+  if (route.query.q) {
+    searchQuery.value = route.query.q as string
+  }
+})
 
 // Reset pagination when searching
 watch(searchQuery, () => {
   currentPage.value = 1
 })
 
+// Suivre les changements d'URL pour la recherche
+watch(() => route.query.q, (newQ) => {
+  if (newQ !== undefined) {
+    searchQuery.value = newQ as string
+  }
+})
+
 // Filter Engine
 const filteredBlogs = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
-  if (!query) return allBlogs.value
-  return allBlogs.value.filter(b => 
+  if (!query) return blogStore.blogs
+  return blogStore.blogs.filter(b => 
     b.titre.toLowerCase().includes(query) || 
     b.categorie.toLowerCase().includes(query)
   )
@@ -190,16 +176,20 @@ const paginatedBlogs = computed(() => {
   return filteredBlogs.value.slice(start, start + itemsPerPage)
 })
 
-// Categories dynamic count
+// Categories dynamic list based on Secteurs
 const categoriesCount = computed(() => {
-  const counts: Record<string, number> = {}
-  allBlogs.value.forEach(b => {
-    counts[b.categorie] = (counts[b.categorie] || 0) + 1
+  const sectors = [...secteurStore.secteurs].sort((a, b) => a.titre.localeCompare(b.titre))
+  
+  const list = sectors.map(s => {
+    const count = blogStore.blogs.filter(b => b.categorie === s.titre).length
+    return { name: s.titre, count }
   })
-  // sort alphabetically
-  return Object.entries(counts)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([name, count]) => ({ name, count }))
+
+  // On ajoute toujours "AUTRE" à la fin
+  const autreCount = blogStore.blogs.filter(b => b.categorie === 'AUTRE').length
+  list.push({ name: 'AUTRE', count: autreCount })
+
+  return list
 })
 
 // Helpers
@@ -213,11 +203,13 @@ const filterByCategory = (catName: string) => {
 }
 
 const formatDate = (dateString: string) => {
+  if (!dateString) return '...'
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
   return new Date(dateString).toLocaleDateString('fr-FR', options)
 }
 
 const generateExcerpt = (htmlString: string) => {
+  if (!htmlString) return ''
   const rawText = htmlString.replace(/<[^>]+>/g, '') // Strip basic HTML if any
   return rawText.length > 140 ? rawText.substring(0, 140) + '...' : rawText
 }
@@ -629,21 +621,5 @@ const generateExcerpt = (htmlString: string) => {
   background: #e2e8f0;
 }
 
-/* ── ANIMATIONS ── */
-.animate-reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  animation: revealUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-}
-
-.reveal-delay-1 {
-  animation-delay: 0.2s;
-}
-
-@keyframes revealUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Animations gérées globalement par .reveal */
 </style>

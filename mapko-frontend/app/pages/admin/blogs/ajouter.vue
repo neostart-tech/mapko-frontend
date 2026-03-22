@@ -31,13 +31,11 @@
             
             <div class="form-group mb-4">
               <label>Catégorie</label>
-              <select v-model="form.categorie" required class="custom-select">
+              <select v-model="form.categorie" required class="custom-select text-sm">
                 <option value="" disabled>Sélectionner une catégorie</option>
-                <option value="Actualités">Actualités</option>
-                <option value="Événements">Événements</option>
-                <option value="Étude de cas">Étude de cas</option>
-                <option value="Infrastructures">Infrastructures</option>
-                <option value="Énergies Renouvelables">Énergies Renouvelables</option>
+                <option v-for="secteur in sortedSecteurs" :key="secteur.id" :value="secteur.titre">
+                   {{ secteur.titre }}
+                </option>
               </select>
             </div>
 
@@ -100,14 +98,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, h, onMounted, nextTick, computed } from 'vue'
 import { useBlogStore } from '~~/stores/blog'
+import { useSecteurStore } from '~~/stores/secteur'
 import Swal from 'sweetalert2'
 import 'quill/dist/quill.snow.css';
 
 definePageMeta({ layout: 'admin' })
 
 const blogStore = useBlogStore()
+const secteurStore = useSecteurStore()
 const router = useRouter()
 
 // Icons
@@ -129,6 +129,8 @@ const editorContainer = ref<HTMLElement | null>(null);
 let quillInstance: any = null;
 
 onMounted(async () => {
+  secteurStore.fetch()
+
   if (import.meta.client && editorContainer.value) {
     const Quill = (await import('quill')).default;
     quillInstance = new Quill(editorContainer.value, {
@@ -136,9 +138,10 @@ onMounted(async () => {
       placeholder: 'Rédigez le contenu complet de l\'article ici...',
       modules: {
         toolbar: [
-           [{ 'header': [1, 2, 3, false] }],
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
            ['bold', 'italic', 'underline', 'strike'],
            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+           [{ 'align': [] }],
            ['link', 'clean']
         ]
       }
@@ -148,6 +151,11 @@ onMounted(async () => {
        form.value.contenu = quillInstance.root.innerHTML;
     });
   }
+})
+
+const sortedSecteurs = computed(() => {
+  const secteurs = [...secteurStore.secteurs].sort((a, b) => a.titre.localeCompare(b.titre))
+  return [...secteurs, { id: 'autre', titre: 'AUTRE' }]
 })
 
 const handleCoverUpload = (e: Event) => {

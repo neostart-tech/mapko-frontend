@@ -23,7 +23,7 @@
 
             <div class="form-group">
               <label>Description</label>
-              <textarea v-model="form.description" rows="6" placeholder="Spécifiez les activités, l'approche et la valeur ajoutée de ce secteur..." required></textarea>
+              <textarea v-model="form.description" rows="6" placeholder="Spécifiez les activités, l'approche et la valeur ajoutée de ce secteur..."></textarea>
             </div>
           </div>
 

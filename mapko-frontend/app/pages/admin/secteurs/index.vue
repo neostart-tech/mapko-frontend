@@ -82,6 +82,8 @@
             :columns="visibleColumns"
             :search="searchQuery"
             :sortable="true"
+            :sortColumn="'titre'"
+            :sortOrder="'asc'"
             :loading="secteurStore.loading"
             skin="bh-table-hover bh-table-compact"
             class="custom-datatable"

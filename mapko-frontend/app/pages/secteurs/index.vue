@@ -22,19 +22,18 @@
       <div class="secteurs-grid-section__container">
         <div class="secteurs-grid" ref="secteursSection" :class="{ 'is-visible': isVisible }">
           <div 
-            v-for="(sector, index) in sectors" 
-            :key="sector.slug"
+            v-for="(sector, index) in shuffledSecteurs" 
+            :key="sector.id"
             class="sector-card animate-reveal"
             :style="{ 'animation-delay': (index * 0.1) + 's' }"
           >
             <div class="sector-card__bg">
-              <img :src="sector.image" :alt="sector.title" class="sector-card__img" />
+              <img :src="getImageUrl(sector.image) || '/images/sector-agro.png'" :alt="sector.titre" class="sector-card__img" />
               <div class="sector-card__overlay" />
             </div>
             <div class="sector-card__content">
-              <div class="sector-card__icon" v-html="sector.icon" />
-              <h3 class="sector-card__title">{{ sector.title }}</h3>
-              <p class="sector-card__tagline">{{ sector.tagline }}</p>
+              <h3 class="sector-card__title">{{ sector.titre }}</h3>
+              <p class="sector-card__tagline">{{ sector.description }}</p>
             </div>
           </div>
         </div>
@@ -44,15 +43,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { sectors } from '~/data/sectors'
+import { ref, onMounted, computed } from 'vue'
+import { useSecteurStore } from '~~/stores/secteur'
+
+const secteurStore = useSecteurStore()
+const config = useRuntimeConfig()
 
 const secteursSection = ref<HTMLElement | null>(null)
 const isVisible = ref(false)
 const isHeroVisible = ref(false)
 
+const shuffledSecteurs = computed(() => {
+  return [...secteurStore.secteurs].sort(() => Math.random() - 0.5)
+})
+
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
 onMounted(() => {
   isHeroVisible.value = true
+  secteurStore.fetch()
+  
   const observer = new IntersectionObserver((entries) => {
     if (entries[0]?.isIntersecting) isVisible.value = true
   }, { threshold: 0.1 })

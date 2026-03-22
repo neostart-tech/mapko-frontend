@@ -24,14 +24,14 @@
                 <span class="article-category">{{ currentBlog.categorie }}</span>
                 <span class="article-date">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  {{ formatDate(currentBlog.date) }}
+                  {{ formatDate(currentBlog.created_at) }}
                 </span>
               </div>
               <h1 class="article-title">{{ currentBlog.titre }}</h1>
             </div>
 
-            <div class="article-cover relative cursor-pointer group" @click="openLightbox(currentBlog.couverture)">
-              <img :src="currentBlog.couverture" :alt="currentBlog.titre" class="article-cover-img" />
+            <div class="article-cover relative cursor-pointer group" @click="openLightbox(getImageUrl(currentBlog.images?.find(img => img.is_couverture)?.path || currentBlog.images?.[0]?.path))">
+              <img :src="getImageUrl(currentBlog.images?.find(img => img.is_couverture)?.path || currentBlog.images?.[0]?.path)" :alt="currentBlog.titre" class="article-cover-img" />
               <div class="article-cover-overlay">
                  <svg class="zoom-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
               </div>
@@ -40,16 +40,16 @@
             <div class="article-body ql-editor" v-html="currentBlog.contenu"></div>
 
             <!-- GALERIE -->
-            <div v-if="currentBlog.galerie && currentBlog.galerie.length" class="article-gallery border-t border-gray-100 pt-8 mt-12">
+            <div v-if="currentBlog.images && currentBlog.images.length > 1" class="article-gallery border-t border-gray-100 pt-8 mt-12">
               <h3 class="text-xl font-bold text-gray-800 mb-6">Galerie multimédia</h3>
               <div class="gallery-grid">
                 <div 
-                  v-for="(img, idx) in currentBlog.galerie" 
+                  v-for="(img, idx) in currentBlog.images.filter(i => !i.is_couverture)" 
                   :key="idx" 
                   class="gallery-item cursor-pointer group"
-                  @click="openLightbox(img)"
+                  @click="openLightbox(getImageUrl(img.path))"
                 >
-                  <img :src="img" class="gallery-img" />
+                  <img :src="getImageUrl(img.path)" class="gallery-img" />
                   <div class="gallery-overlay">
                     <svg class="zoom-icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
                   </div>
@@ -60,9 +60,18 @@
             <div class="article-share border-t border-gray-100 pt-8 mt-12 flex items-center justify-between">
               <span class="font-bold text-gray-800">Partager cet article</span>
               <div class="flex gap-4">
-                 <!-- Obvious share placeholders -->
-                 <button class="share-btn text-blue-600 bg-blue-50 hover:bg-blue-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></button>
-                 <button class="share-btn text-blue-400 bg-blue-50 hover:bg-blue-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg></button>
+                 <button @click="shareOnFacebook" class="share-btn text-blue-800 bg-blue-50 hover:bg-blue-100" title="Partager sur Facebook">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                 </button>
+                 <button @click="shareOnLinkedIn" class="share-btn text-blue-700 bg-blue-50 hover:bg-blue-100" title="Partager sur LinkedIn">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
+                 </button>
+                 <button @click="shareOnX" class="share-btn text-gray-900 bg-gray-50 hover:bg-gray-100" title="Partager sur X">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l11.733 16h4.267l-11.733-16zM4 20l6.768-6.768m2.464-2.464L20 4"></path></svg>
+                 </button>
+                 <button @click="shareOnWhatsApp" class="share-btn text-green-600 bg-green-50 hover:bg-green-100" title="Partager sur WhatsApp">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                 </button>
               </div>
             </div>
             
@@ -78,11 +87,11 @@
                  :to="`/blogs/${blog.id}`"
                  class="related-card shadow-card"
                >
-                 <img :src="blog.couverture" :alt="blog.titre" class="related-img" />
+                 <img :src="getImageUrl(blog.images?.find(img => img.is_couverture)?.path || blog.images?.[0]?.path)" :alt="blog.titre" class="related-img" />
                  <div class="related-content">
                     <span class="related-cat">{{ blog.categorie }}</span>
                     <h3 class="related-title">{{ blog.titre }}</h3>
-                    <span class="related-date">{{ formatDate(blog.date) }}</span>
+                    <span class="related-date">{{ formatDate(blog.created_at) }}</span>
                  </div>
                </NuxtLink>
             </div>
@@ -132,94 +141,92 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useBlogStore, type Blog } from '~~/stores/blog'
+import { useSecteurStore } from '~~/stores/secteur'
 
 // We need Quill's base CSS to render the saved HTML cleanly (lists, indents, formatting constraints)
 import 'quill/dist/quill.snow.css' 
 
 const route = useRoute()
 const router = useRouter()
-const blogId = Number(route.params.id)
+const blogStore = useBlogStore()
+const secteurStore = useSecteurStore()
+const config = useRuntimeConfig()
+const blogId = route.params.id as string
 
-// We mock the database just like the index
-const allBlogs = [
-  { 
-    id: 1, 
-    titre: 'Les nouvelles initiatives en énergie solaire et l\'impact global', 
-    categorie: 'Énergies Renouvelables',
-    contenu: '<p>Face au réchauffement climatique, notre nouvelle approche pour le développement énergétique permet de réduire les empreintes carbone de façon drastique.</p><h3>Une opportunité en or</h3><p>Le photovoltaïque s\'impose aujourd\'hui comme le premier vecteur d\'investissement propre en Afrique. L\'innovation constante réduit les coûts d\'installation tout en maximisant la capacité d\'emmagasinage, ce qui garantit non seulement un accès durable mais aussi très rentable pour les partenaires de long terme.</p><ul><li>Baisse des coûts de production</li><li>Investissements institutionnels croissants</li><li>Impact social positif</li></ul>', 
-    date: '2026-03-20',
-    couverture: 'https://images.unsplash.com/photo-1509391366360-12009cb9f3ac?auto=format&fit=crop&q=80&w=800',
-    galerie: [
-      'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&q=80&w=800',
-      'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=800',
-      'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
-    ]
-  },
-  { 
-    id: 2, 
-    titre: 'Modernisation des infrastructures de transport en Afrique', 
-    categorie: 'Infrastructures',
-    contenu: '<p>La logistique de transport moderne passe par la rationalisation des réseaux routiers existants, notamment par l\'utilisation de solutions d\'intelligence artificielle pour la gestion du trafic et des flottes marchandes.</p>', 
-    date: '2026-03-10',
-    couverture: 'https://images.unsplash.com/photo-1541888081622-3a27a36cb3a1?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 3, 
-    titre: 'Conférence annuelle de logistique : Les retours d\'expérience', 
-    categorie: 'Événements',
-    contenu: '<p>Nous étions présents à la dernière grande convention sur la logistique transport au mois de février. L\'occasion d\'aborder les enjeux de l\'import/export sécurisé sur le continent, mais aussi au niveau global.</p>', 
-    date: '2026-02-28',
-    couverture: 'https://images.unsplash.com/photo-1586528116311-ad8ed7c1524f?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 4, 
-    titre: 'L\'avenir de l\'énergie renouvelable : éolien ou solaire ?', 
-    categorie: 'Énergies Renouvelables',
-    contenu: '<p>Nous avons analysé l\'impact des deux principales énergies vertes sur les dix dernières années...</p>', 
-    date: '2026-01-20',
-    couverture: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 5, 
-    titre: 'Parcs éoliens : Les nouveaux champions de demain', 
-    categorie: 'Énergies Renouvelables',
-    contenu: '<p>Le potentiel de l\'éolien offshore est immense...</p>', 
-    date: '2025-12-10',
-    couverture: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=800'
+const currentBlog = ref<Blog | null>(null)
+const loading = ref(true)
+
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
+onMounted(async () => {
+  try {
+    const data = await blogStore.show(blogId)
+    currentBlog.value = data
+    blogStore.fetch() // pour les articles suggérés
+    secteurStore.fetch()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false
   }
-]
-
-// Current Blog
-const currentBlog = computed(() => {
-  return allBlogs.find(b => b.id === blogId) || allBlogs[0] // fallback for testing
 })
 
 // Meta tags
 useHead({
-  title: `${currentBlog.value?.titre || 'Blog'} - Mapko & Partners`,
+  title: computed(() => `${currentBlog.value?.titre || 'Blog'} - Mapko & Partners`),
   meta: [
-    { name: 'description', content: currentBlog.value?.contenu?.replace(/<[^>]+>/g, '').substring(0, 150) + '...' || '' }
+    { name: 'description', content: computed(() => currentBlog.value?.contenu?.replace(/<[^>]+>/g, '').substring(0, 150) + '...' || '') }
   ]
 })
 
+// Sharing Logic
+const requestUrl = useRequestURL()
+const shareUrl = computed(() => requestUrl.href)
+
+const shareOnFacebook = () => {
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`, '_blank')
+}
+
+const shareOnLinkedIn = () => {
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl.value)}`, '_blank')
+}
+
+const shareOnX = () => {
+  window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(currentBlog.value?.titre || '')}`, '_blank')
+}
+
+const shareOnWhatsApp = () => {
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent((currentBlog.value?.titre || '') + ' ' + shareUrl.value)}`, '_blank')
+}
+
 // Related Blogs
 const relatedBlogs = computed(() => {
-  return allBlogs
+  if (!currentBlog.value) return []
+  return blogStore.blogs
     .filter(b => b.categorie === currentBlog.value?.categorie && b.id !== currentBlog.value?.id)
-    .slice(0, 2) // only 2 latest
+    .slice(0, 2)
 })
 
 // Categories dynamic count
 const categoriesCount = computed(() => {
-  const counts: Record<string, number> = {}
-  allBlogs.forEach(b => {
-    counts[b.categorie] = (counts[b.categorie] || 0) + 1
+  const sectors = [...secteurStore.secteurs].sort((a, b) => a.titre.localeCompare(b.titre))
+  const list = sectors.map(s => {
+    const count = blogStore.blogs.filter(b => b.categorie === s.titre).length
+    return { name: s.titre, count }
   })
-  return Object.entries(counts)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([name, count]) => ({ name, count }))
+  
+  // Toujours ajouter AUTRE
+  const autreCount = blogStore.blogs.filter(b => b.categorie === 'AUTRE').length
+  list.push({ name: 'AUTRE', count: autreCount })
+  
+  return list
 })
 
 // Sidebar logic
@@ -227,17 +234,16 @@ const localSearch = ref('')
 
 const onSearch = () => {
   if (localSearch.value.trim().length > 0) {
-    // Navigate to the list page with the query param (this is how you fake search routing in pure Vue without a store)
-    router.push({ path: '/blogs' })
+    router.push({ path: '/blogs', query: { q: localSearch.value } })
   }
 }
 
 const onCategorySelect = (catName: string) => {
-  // same as search
-  router.push({ path: '/blogs' })
+  router.push({ path: '/blogs', query: { q: catName } })
 }
 
 const formatDate = (dateString: string) => {
+  if (!dateString) return '...'
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
   return new Date(dateString).toLocaleDateString('fr-FR', options)
 }
@@ -247,12 +253,12 @@ const lightboxImg = ref<string | null>(null)
 
 const openLightbox = (url: string) => {
   lightboxImg.value = url
-  document.body.style.overflow = 'hidden' // hide scroll
+  document.body.style.overflow = 'hidden'
 }
 
 const closeLightbox = () => {
   lightboxImg.value = null
-  document.body.style.overflow = '' // restore scroll
+  document.body.style.overflow = ''
 }
 </script>
 

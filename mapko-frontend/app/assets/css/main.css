@@ -42,9 +42,40 @@
 }
 
 /* =============================================
-   ANIMATIONS GLOBALES
+   ANIMATIONS DE DEFILEMENT (REVEAL)
    ============================================= */
-.animate-reveal {
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform, opacity;
+}
+
+.reveal.is-visible {
   opacity: 1;
-  transform: none;
+  transform: translateY(0);
+}
+
+/* Variantes */
+.reveal-left { transform: translateX(-40px); }
+.reveal-right { transform: translateX(40px); }
+.reveal-scale { transform: scale(0.95); }
+
+.reveal-left.is-visible, 
+.reveal-right.is-visible { transform: translateX(0); }
+.reveal-scale.is-visible { transform: scale(1); }
+
+/* Delays */
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }
+.delay-400 { transition-delay: 400ms; }
+.delay-500 { transition-delay: 500ms; }
+
+/* Global Button Disabled State */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  filter: grayscale(0.5);
+  pointer-events: none;
 }

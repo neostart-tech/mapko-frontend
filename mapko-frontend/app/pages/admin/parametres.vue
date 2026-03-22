@@ -100,7 +100,9 @@
           </div>
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="closeModals">Annuler</button>
-            <button type="submit" class="btn-save">Mettre à jour</button>
+            <button type="submit" class="btn-save" :disabled="userStore.loading">
+              {{ userStore.loading ? 'Mise à jour en cours...' : 'Mettre à jour' }}
+            </button>
           </div>
         </form>
       </div>
@@ -146,7 +148,9 @@
           <p v-if="passwordError" class="error-msg">{{ passwordError }}</p>
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="closeModals">Annuler</button>
-            <button type="submit" class="btn-save btn-save-blue">Mettre à jour</button>
+            <button type="submit" class="btn-save btn-save-blue" :disabled="userStore.loading">
+              {{ userStore.loading ? 'Mise à jour en cours...' : 'Mettre à jour' }}
+            </button>
           </div>
         </form>
       </div>

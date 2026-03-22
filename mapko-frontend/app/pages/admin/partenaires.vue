@@ -51,6 +51,8 @@
             :columns="allColumns"
             :search="searchQuery"
             :sortable="true"
+            :sortColumn="'nom'"
+            :sortOrder="'asc'"
             :loading="partenaireStore.loading"
             skin="bh-table-hover bh-table-compact"
             class="custom-datatable"
@@ -131,7 +133,9 @@
 
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="closeModals">Annuler</button>
-            <button type="submit" class="btn-submit">Ajouter</button>
+            <button type="submit" class="btn-submit" :disabled="partenaireStore.loading">
+              {{ partenaireStore.loading ? 'Ajout en cours...' : 'Ajouter' }}
+            </button>
           </div>
         </form>
       </div>
@@ -172,7 +176,9 @@
 
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="closeModals">Annuler</button>
-            <button type="submit" class="btn-submit btn-edit-variant">Mettre à jour</button>
+            <button type="submit" class="btn-submit btn-edit-variant" :disabled="partenaireStore.loading">
+              {{ partenaireStore.loading ? 'Mise à jour en cours...' : 'Mettre à jour' }}
+            </button>
           </div>
         </form>
       </div>
@@ -252,8 +258,10 @@ const handleFileUpload = (e: Event) => {
   const target = e.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     const file = target.files[0];
-    logoFile.value = file;
-    logoPreview.value = URL.createObjectURL(file);
+    if (file) {
+      logoFile.value = file;
+      logoPreview.value = URL.createObjectURL(file);
+    }
   }
 };
 
@@ -527,6 +535,12 @@ onMounted(async () => {
 
 .btn-edit-variant { background: var(--color-blue); }
 .btn-edit-variant:hover { box-shadow: 0 4px 12px rgba(15, 76, 129, 0.2); }
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
 
 /* Table Elements (Global Buttons & Styles) */
 .btn-add {

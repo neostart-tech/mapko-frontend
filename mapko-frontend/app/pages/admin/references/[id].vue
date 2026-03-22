@@ -1,6 +1,7 @@
 <template>
   <div class="references-modifier-page">
-    <AdminBreadcrumb :items="[{ label: 'Références', link: '/admin/references' }, { label: 'Modifier une référence' }]" />
+    <AdminBreadcrumb
+      :items="[{ label: 'Références', link: '/admin/references' }, { label: 'Modifier une référence' }]" />
 
     <div class="page-header">
       <div class="header-text">
@@ -28,19 +29,21 @@
 
             <div class="form-group mt-2">
               <label>Montant</label>
-              <input type="text" v-model="form.montant" placeholder="Ex: 45M FCFA, Confidentiel..." />
+              <input type="text" v-model="form.montant" placeholder="Ex: 5M €, Confidentiel..." />
             </div>
           </div>
 
           <!-- Colonne Latérale -->
           <div class="form-sidebar bg-gray-50/50 p-6 rounded-2xl border border-gray-100 h-fit">
-            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-6 border-b border-gray-200 pb-3 border-b-blue-100">Métadonnées du projet</h3>
-            
+            <h3
+              class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-6 border-b border-gray-200 pb-3 border-b-blue-100">
+              Métadonnées du projet</h3>
+
             <div class="form-group">
               <label>Secteur d'activité</label>
               <select v-model="form.secteur_id" required class="custom-select focus-blue">
                 <option value="" disabled>Sélectionner un secteur</option>
-                <option v-for="secteur in secteurStore.secteurs" :key="secteur.id" :value="secteur.id">
+                <option v-for="secteur in sortedSecteurs" :key="secteur.id" :value="secteur.id">
                   {{ secteur.titre }}
                 </option>
               </select>
@@ -48,17 +51,24 @@
 
             <div class="form-group">
               <label>Pays de l'intervention</label>
-              <input type="text" v-model="form.pays" class="focus-blue" placeholder="Ex: Togo, Côte d'Ivoire..." required />
+              <select v-model="form.pays" required class="custom-select focus-blue">
+                <option value="" disabled>Sélectionner un pays</option>
+                <option v-for="country in countries" :key="country" :value="country">
+                  {{ country }}
+                </option>
+              </select>
             </div>
 
             <div class="form-row">
               <div class="form-group w-1/2">
                 <label>Année de début</label>
-                <input type="number" v-model="form.annee_debut" class="focus-blue" placeholder="Ex: 2021" required min="1990" max="2100" />
+                <input type="number" v-model="form.annee_debut" class="focus-blue" placeholder="Année de début" required
+                  min="1990" max="2100" />
               </div>
               <div class="form-group w-1/2">
                 <label>Année de fin</label>
-                <input type="number" v-model="form.annee_fin" class="focus-blue" placeholder="Ex: 2023" min="1990" max="2100" />
+                <input type="number" v-model="form.annee_fin" class="focus-blue" placeholder="Année de fin" min="1990"
+                  max="2100" />
                 <span class="text-[10px] text-gray-400 mt-1 block">Vide si en cours</span>
               </div>
             </div>
@@ -82,8 +92,8 @@
         <div class="form-actions border-top">
           <NuxtLink to="/admin/references" class="btn-cancel">Annuler</NuxtLink>
           <button type="submit" class="btn-save btn-save-edit" :disabled="referenceStore.loading">
-             <component :is="IconSave" class="icon-sm" />
-             {{ referenceStore.loading ? 'Enregistrement...' : 'Sauvegarder les modifications' }}
+            <component :is="IconSave" class="icon-sm" />
+            {{ referenceStore.loading ? 'Enregistrement...' : 'Sauvegarder les modifications' }}
           </button>
         </div>
       </form>
@@ -92,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, h } from 'vue'
+import { ref, onMounted, h, nextTick, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useReferenceStore } from '~~/stores/reference'
 import { useSecteurStore } from '~~/stores/secteur'
@@ -106,6 +116,10 @@ const router = useRouter()
 const referenceStore = useReferenceStore()
 const secteurStore = useSecteurStore()
 const referenceId = route.params.id as string
+
+const sortedSecteurs = computed(() => {
+  return [...secteurStore.secteurs].sort((a, b) => a.titre.localeCompare(b.titre))
+})
 
 const loadingRef = ref(true)
 
@@ -126,33 +140,43 @@ const form = ref({
 const editorContainer = ref<HTMLElement | null>(null);
 let quillInstance: any = null;
 
+const { countries, fetchCountries } = useCountries()
+
 onMounted(async () => {
   secteurStore.fetch();
-  
+  fetchCountries();
+
   try {
     const data = await referenceStore.show(referenceId)
     form.value = {
-      titre: data.titre,
+      titre: data.titre || '',
       description: data.description || '',
-      secteur_id: data.secteur_id,
-      pays: data.pays,
-      annee_debut: data.annee_debut,
+      secteur_id: data.secteur_id || '',
+      pays: data.pays || '',
+      annee_debut: data.annee_debut || 2020,
       annee_fin: data.annee_fin || null,
       montant: data.montant || '',
       statut: data.statut === 'termine' ? 'termine' : 'en_cours'
     }
 
+    // On désactive le chargement pour afficher le DOM
+    loadingRef.value = false
+
+    // On attend le prochain cycle pour que editorContainer soit disponible
+    await nextTick()
+
     if (import.meta.client && editorContainer.value) {
       const Quill = (await import('quill')).default;
       quillInstance = new Quill(editorContainer.value, {
         theme: 'snow',
-        placeholder: 'Décrivez le contexte, l\'intervention et les résultats du projet...',
+        placeholder: 'Brève description du projet...',
         modules: {
           toolbar: [
-             [{ 'header': [1, 2, 3, false] }],
-             ['bold', 'italic', 'underline', 'strike'],
-             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-             ['link', 'clean']
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link', 'clean']
           ]
         }
       });
@@ -160,24 +184,44 @@ onMounted(async () => {
       quillInstance.root.innerHTML = form.value.description;
 
       quillInstance.on('text-change', () => {
-         form.value.description = quillInstance.root.innerHTML;
+        form.value.description = quillInstance.root.innerHTML;
       });
     }
   } catch (error) {
     Swal.fire('Erreur', 'Impossible de charger les données de la référence.', 'error')
     router.push('/admin/references')
-  } finally {
     loadingRef.value = false
   }
 })
 
 const updateReference = async () => {
+  // Validations
+  if (form.value.statut === 'termine' && !form.value.annee_fin) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Donnée manquante',
+      text: 'Veuillez renseigner une année de fin pour un projet terminé.',
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    return;
+  }
+
+  if (form.value.annee_fin && form.value.annee_fin < form.value.annee_debut) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur de date',
+      text: 'L\'année de fin ne peut pas être inférieure à l\'année de début.',
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    return;
+  }
+
   try {
     const payload = { ...form.value };
     if (!payload.annee_fin) payload.annee_fin = null;
 
     await referenceStore.update(referenceId, payload);
-    
+
     Swal.fire({
       icon: 'success',
       title: 'Référence mise à jour',
@@ -193,11 +237,28 @@ const updateReference = async () => {
 </script>
 
 <style scoped>
-.references-modifier-page { display: flex; flex-direction: column; }
+.references-modifier-page {
+  display: flex;
+  flex-direction: column;
+}
 
-.page-header { margin-top: 1rem; margin-bottom: 2.5rem; }
-.header-text h1 { font-size: 1.75rem; font-weight: 700; color: #000000; margin: 0; }
-.header-text p { color: #64748b; font-size: 0.95rem; margin-top: 0.25rem; }
+.page-header {
+  margin-top: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.header-text h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.header-text p {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+}
 
 .content-card {
   background: #ffffff;
@@ -358,13 +419,14 @@ const updateReference = async () => {
   color: #94a3b8;
 }
 
-.status-option input:checked + .status-badge.en-cours {
-  background: var(--color-violet); /* Différenciation en mode édition annulée pour la consistance */
+.status-option input:checked+.status-badge.en-cours {
+  background: var(--color-violet);
+  /* Différenciation en mode édition annulée pour la consistance */
   color: #ffffff;
   box-shadow: 0 4px 10px rgba(122, 46, 142, 0.3);
 }
 
-.status-option input:checked + .status-badge.termine {
+.status-option input:checked+.status-badge.termine {
   background: var(--color-blue);
   color: #ffffff;
   box-shadow: 0 4px 10px rgba(15, 76, 129, 0.3);
@@ -377,7 +439,11 @@ const updateReference = async () => {
   border-top: 1px solid #f1f5f9;
 }
 
-.form-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
 
 .btn-cancel {
   background: transparent;
@@ -393,7 +459,10 @@ const updateReference = async () => {
   align-items: center;
 }
 
-.btn-cancel:hover { background: #f8fafc; border-color: #94a3b8; }
+.btn-cancel:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
 
 .btn-save {
   display: inline-flex;
@@ -420,10 +489,19 @@ const updateReference = async () => {
   transform: translateY(-1px);
 }
 
-.icon-sm { width: 18px; height: 18px; }
+.icon-sm {
+  width: 18px;
+  height: 18px;
+}
 
 @media (max-width: 900px) {
-  .form-grid { grid-template-columns: 1fr; gap: 2rem; }
-  .form-sidebar { height: auto; }
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .form-sidebar {
+    height: auto;
+  }
 }
 </style>

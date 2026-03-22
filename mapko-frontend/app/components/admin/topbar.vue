@@ -14,10 +14,6 @@
     </div>
 
     <div class="topbar-right">
-      <div class="status-badge">
-        <span class="status-dot"></span>
-        Live
-      </div>
       
 
       <div class="user-profile">

@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 
 const route = useRoute()
 const showScrollTop = ref(false)
@@ -38,10 +38,35 @@ const scrollToTop = () => {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
+  initRevealObserver()
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+})
+
+// REVEAL ON SCROLL LOGIC
+const initRevealObserver = () => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible')
+      }
+    })
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  })
+
+  const elements = document.querySelectorAll('.reveal')
+  elements.forEach(el => observer.observe(el))
+}
+
+// Relancer l'observer après chaque changement de page
+watch(() => route.path, () => {
+  setTimeout(() => {
+    initRevealObserver()
+  }, 300)
 })
 </script>
 
