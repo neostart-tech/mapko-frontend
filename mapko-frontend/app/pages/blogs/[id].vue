@@ -1,38 +1,22 @@
 <template>
-  <div class="blog-detail-page pt-32">
+  <div class="blog-detail-page pt-10">
     <!-- CONTENT LAYOUT -->
     <section class="blogs-section">
       <div class="blogs-container">
         
-        <!-- SIDEBAR -->
-        <aside class="blogs-sidebar">
-          <div class="sidebar-widget search-widget shadow-card animate-reveal">
-            <h3 class="widget-title">Rechercher</h3>
-            <div class="search-input-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" v-model="localSearch" @keyup.enter="onSearch" placeholder="Mot-clé ou catégorie..." />
-            </div>
-          </div>
-
-          <div class="sidebar-widget categories-widget shadow-card animate-reveal reveal-delay-1">
-            <h3 class="widget-title">Catégories</h3>
-            <ul class="category-list">
-              <li 
-                v-for="cat in categoriesCount" 
-                :key="cat.name"
-                class="category-item"
-                @click="onCategorySelect(cat.name)"
-              >
-                <span class="category-name">{{ cat.name }}</span>
-                <span class="category-count">({{ cat.count }})</span>
-              </li>
-            </ul>
-          </div>
-        </aside>
-
         <!-- MAIN CONTENT -->
         <main class="blogs-main" v-if="currentBlog">
           
+          <!-- BREADCRUMB -->
+          <nav class="breadcrumb animate-reveal">
+            <NuxtLink to="/blogs" class="breadcrumb-link">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+               Retour aux blogs
+            </NuxtLink>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">{{ currentBlog.categorie }}</span>
+          </nav>
+
           <article class="blog-article shadow-card animate-reveal">
             
             <div class="article-header">
@@ -105,6 +89,32 @@
           </div>
 
         </main>
+
+        <!-- SIDEBAR -->
+        <aside class="blogs-sidebar">
+          <div class="sidebar-widget search-widget shadow-card animate-reveal">
+            <h3 class="widget-title">Rechercher</h3>
+            <div class="search-input-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" v-model="localSearch" @keyup.enter="onSearch" placeholder="Mot-clé ou catégorie..." />
+            </div>
+          </div>
+
+          <div class="sidebar-widget categories-widget shadow-card animate-reveal reveal-delay-1">
+            <h3 class="widget-title">Catégories</h3>
+            <ul class="category-list">
+              <li 
+                v-for="cat in categoriesCount" 
+                :key="cat.name"
+                class="category-item"
+                @click="onCategorySelect(cat.name)"
+              >
+                <span class="category-name">{{ cat.name }}</span>
+                <span class="category-count">({{ cat.count }})</span>
+              </li>
+            </ul>
+          </div>
+        </aside>
 
       </div>
     </section>
@@ -268,7 +278,7 @@ const closeLightbox = () => {
 
 @media (min-width: 960px) {
   .blogs-container {
-    flex-direction: row-reverse; /* Sidebar Right */
+    flex-direction: row; /* Main Left, Sidebar Right */
     align-items: flex-start;
   }
 }
@@ -737,5 +747,51 @@ const closeLightbox = () => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* ── BREADCRUMB ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.breadcrumb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-blue);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.breadcrumb-link:hover {
+  color: #ffffff;
+  background: var(--color-violet);
+  border-color: var(--color-violet);
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(122, 46, 142, 0.2);
+}
+
+.breadcrumb-separator {
+  color: #94a3b8;
+  font-weight: 500;
+  margin: 0 0.5rem;
+}
+
+.breadcrumb-current {
+  color: #475569;
+  background: #f1f5f9;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
 }
 </style>

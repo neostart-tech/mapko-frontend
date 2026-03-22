@@ -19,36 +19,6 @@
     <section class="blogs-section">
       <div class="blogs-container">
         
-        <!-- SIDEBAR (Mobile First / Top on small screens, Right on desktop) -->
-        <aside class="blogs-sidebar">
-          <div class="sidebar-widget search-widget shadow-card animate-reveal">
-            <h3 class="widget-title">Rechercher</h3>
-            <div class="search-input-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" v-model="searchQuery" placeholder="Mot-clé ou catégorie..." />
-            </div>
-          </div>
-
-          <div class="sidebar-widget categories-widget shadow-card animate-reveal reveal-delay-1">
-            <h3 class="widget-title">Catégories</h3>
-            <ul class="category-list">
-              <li 
-                v-for="cat in categoriesCount" 
-                :key="cat.name"
-                class="category-item"
-                @click="filterByCategory(cat.name)"
-                :class="{ 'is-active': searchQuery === cat.name }"
-              >
-                <span class="category-name">{{ cat.name }}</span>
-                <span class="category-count">({{ cat.count }})</span>
-              </li>
-              <li class="category-item text-xs mt-2 text-violet-600 font-bold justify-center" v-if="searchQuery" @click="searchQuery = ''">
-                 Réinitialiser le filtre
-              </li>
-            </ul>
-          </div>
-        </aside>
-
         <!-- MAIN CONTENT -->
         <main class="blogs-main">
           
@@ -103,6 +73,36 @@
           </div>
 
         </main>
+
+        <!-- SIDEBAR -->
+        <aside class="blogs-sidebar">
+          <div class="sidebar-widget search-widget shadow-card animate-reveal">
+            <h3 class="widget-title">Rechercher</h3>
+            <div class="search-input-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" v-model="searchQuery" placeholder="Mot-clé ou catégorie..." />
+            </div>
+          </div>
+
+          <div class="sidebar-widget categories-widget shadow-card animate-reveal reveal-delay-1">
+            <h3 class="widget-title">Catégories</h3>
+            <ul class="category-list">
+              <li 
+                v-for="cat in categoriesCount" 
+                :key="cat.name"
+                class="category-item"
+                @click="filterByCategory(cat.name)"
+                :class="{ 'is-active': searchQuery === cat.name }"
+              >
+                <span class="category-name">{{ cat.name }}</span>
+                <span class="category-count">({{ cat.count }})</span>
+              </li>
+              <li class="category-item text-xs mt-2 text-violet-600 font-bold justify-center" v-if="searchQuery" @click="searchQuery = ''">
+                 Réinitialiser le filtre
+              </li>
+            </ul>
+          </div>
+        </aside>
 
       </div>
     </section>
@@ -306,7 +306,7 @@ const generateExcerpt = (htmlString: string) => {
 
 @media (min-width: 960px) {
   .blogs-container {
-    flex-direction: row-reverse; /* Sidebar Right */
+    flex-direction: row; /* Main Left, Sidebar Right */
     align-items: flex-start;
   }
 }
