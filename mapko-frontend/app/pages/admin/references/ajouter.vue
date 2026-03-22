@@ -1,15 +1,15 @@
 <template>
   <div class="references-ajouter-page">
-    <AdminBreadcrumb :items="[{ label: 'Références', to: '/admin/references' }, { label: 'Nouvelle référence' }]" class="animate-reveal" />
+    <AdminBreadcrumb :items="[{ label: 'Références', link: '/admin/references' }, { label: 'Nouvelle référence' }]" />
 
-    <div class="page-header animate-reveal reveal-delay-1">
+    <div class="page-header">
       <div class="header-text">
         <h1>Ajouter une Référence</h1>
         <p>Enregistrez un nouveau projet ou mission réalisé par Mapko & Partners.</p>
       </div>
     </div>
 
-    <div class="content-card animate-reveal reveal-delay-2">
+    <div class="content-card">
       <form @submit.prevent="saveReference" class="admin-form">
         <div class="form-grid">
           <!-- Colonne Principale -->
@@ -36,9 +36,9 @@
             
             <div class="form-group">
               <label>Secteur d'activité</label>
-              <select v-model="form.id_secteur" required class="custom-select">
+              <select v-model="form.secteur_id" required class="custom-select">
                 <option value="" disabled>Sélectionner un secteur</option>
-                <option v-for="secteur in secteurs" :key="secteur.id" :value="secteur.id">
+                <option v-for="secteur in secteurStore.secteurs" :key="secteur.id" :value="secteur.id">
                   {{ secteur.titre }}
                 </option>
               </select>
@@ -65,7 +65,7 @@
               <label>Statut</label>
               <div class="status-toggle">
                 <label class="status-option">
-                  <input type="radio" v-model="form.statut" value="en-cours" />
+                  <input type="radio" v-model="form.statut" value="en_cours" />
                   <span class="status-badge en-cours">En cours</span>
                 </label>
                 <label class="status-option">
@@ -79,9 +79,9 @@
 
         <div class="form-actions border-top">
           <NuxtLink to="/admin/references" class="btn-cancel">Annuler</NuxtLink>
-          <button type="submit" class="btn-save">
+          <button type="submit" class="btn-save" :disabled="referenceStore.loading">
              <component :is="IconSave" class="icon-sm" />
-             Enregistrer la référence
+             {{ referenceStore.loading ? 'Enregistrement...' : 'Enregistrer la référence' }}
           </button>
         </div>
       </form>
@@ -91,9 +91,16 @@
 
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue'
+import { useReferenceStore } from '~~/stores/reference'
+import { useSecteurStore } from '~~/stores/secteur'
+import Swal from 'sweetalert2'
 import 'quill/dist/quill.snow.css';
 
 definePageMeta({ layout: 'admin' })
+
+const referenceStore = useReferenceStore()
+const secteurStore = useSecteurStore()
+const router = useRouter()
 
 // Icon
 const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z' }), h('polyline', { points: '17 21 17 13 7 13 7 21' }), h('polyline', { points: '7 3 7 8 15 8' })])
@@ -101,18 +108,20 @@ const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: 
 const form = ref({
   titre: '',
   description: '',
-  id_secteur: '',
+  secteur_id: '',
   pays: '',
   annee_debut: new Date().getFullYear(),
-  annee_fin: '',
+  annee_fin: null as number | null,
   montant: '',
-  statut: 'en-cours'
+  statut: 'en_cours'
 })
 
 const editorContainer = ref<HTMLElement | null>(null);
 let quillInstance: any = null;
 
 onMounted(async () => {
+  secteurStore.fetch();
+  
   if (import.meta.client && editorContainer.value) {
     const Quill = (await import('quill')).default;
     quillInstance = new Quill(editorContainer.value, {
@@ -134,17 +143,26 @@ onMounted(async () => {
   }
 })
 
-// Mock des secteurs pour le select
-const secteurs = ref([
-  { id: 1, titre: 'Bâtiment et Travaux Publics' },
-  { id: 2, titre: 'Énergies Renouvelables' },
-  { id: 3, titre: 'Logistique & Transport' }
-])
+const saveReference = async () => {
+  try {
+    const payload = { ...form.value };
+    // Nettoyage de l'année de fin si vide
+    if (!payload.annee_fin) payload.annee_fin = undefined;
 
-const saveReference = () => {
-  console.log('Référence créée :', form.value)
-  alert('La référence a été ajoutée avec succès !')
-  // Ici logiquement => navigateTo('/admin/references')
+    await referenceStore.store(payload);
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Référence ajoutée',
+      text: 'Le projet a été enregistré avec succès.',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    router.push('/admin/references');
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible d\'ajouter la référence.', 'error');
+  }
 }
 </script>
 

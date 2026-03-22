@@ -1,15 +1,15 @@
 <template>
   <div class="secteurs-ajouter-page">
-    <AdminBreadcrumb :items="[{ label: 'Secteurs', to: '/admin/secteurs' }, { label: 'Nouveau secteur' }]" class="animate-reveal" />
+    <AdminBreadcrumb :items="[{ label: 'Secteurs', link: '/admin/secteurs' }, { label: 'Nouveau secteur' }]" />
 
-    <div class="page-header animate-reveal reveal-delay-1">
+    <div class="page-header">
       <div class="header-text">
         <h1>Ajouter un Secteur</h1>
         <p>Définissez un nouveau domaine d'expertise pour l'entreprise.</p>
       </div>
     </div>
 
-    <div class="content-card animate-reveal reveal-delay-2">
+    <div class="content-card">
       <form @submit.prevent="saveSecteur" class="admin-form">
         <div class="form-grid">
           <!-- Colonne Principale -->
@@ -30,32 +30,30 @@
             <div class="form-group">
               <label>Image d'illustration principale</label>
               
-              <div class="image-upload-box" :class="{ 'has-image': form.image }">
-                <div v-if="!form.image" class="upload-placeholder">
+              <div class="image-upload-box" :class="{ 'has-image': imagePreview }">
+                <div v-if="!imagePreview" class="upload-placeholder">
                   <component :is="IconImage" class="upload-icon" />
                   <p>Cliquez ou glissez une image ici</p>
                   <span class="upload-hint">Formats : JPG, PNG, WEBP (Max 5MB)</span>
                 </div>
                 <div v-else class="preview-container">
-                  <img :src="form.image" class="image-preview" alt="Aperçu" />
-                  <button type="button" class="btn-remove-img" @click.stop="form.image = ''" title="Retirer l'image">
+                  <img :src="imagePreview" class="image-preview" alt="Aperçu" />
+                  <button type="button" class="btn-remove-img" @click.stop="imagePreview = ''; imageFile = null" title="Retirer l'image">
                     <component :is="IconClose" />
                   </button>
                 </div>
                 <!-- On simule un upload de fichier. L'input couvre la box invisible -->
                 <input type="file" @change="handleFileUpload" accept="image/*" class="file-input" title="" />
               </div>
-
-              
             </div>
           </div>
         </div>
 
         <div class="form-actions border-top">
           <NuxtLink to="/admin/secteurs" class="btn-cancel">Annuler</NuxtLink>
-          <button type="submit" class="btn-save">
+          <button type="submit" class="btn-save" :disabled="secteurStore.loading">
              <component :is="IconSave" class="icon-sm" />
-             Enregistrer le secteur
+             {{ secteurStore.loading ? 'Enregistrement...' : 'Enregistrer le secteur' }}
           </button>
         </div>
       </form>
@@ -65,33 +63,58 @@
 
 <script setup lang="ts">
 import { ref, h } from 'vue'
+import { useSecteurStore } from '~~/stores/secteur'
+import Swal from 'sweetalert2'
 
 definePageMeta({ layout: 'admin' })
+
+const secteurStore = useSecteurStore()
+const router = useRouter()
 
 // Icons
 const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z' }), h('polyline', { points: '17 21 17 13 7 13 7 21' }), h('polyline', { points: '7 3 7 8 15 8' })])
 const IconImage = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '2', ry: '2' }), h('circle', { cx: '8.5', cy: '8.5', r: '1.5' }), h('polyline', { points: '21 15 16 10 5 21' })])
 const IconClose = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('line', { x1: '18', y1: '6', x2: '6', y2: '18' }), h('line', { x1: '6', y1: '6', x2: '18', y2: '18' })])
 
+const imageFile = ref<File | null>(null)
+const imagePreview = ref('')
+
 const form = ref({
   titre: '',
   description: '',
-  image: ''
 })
 
 const handleFileUpload = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     const file = target.files[0]
-    // Simulation : créer un URL object (blob) pour l'aperçu dynamique
-    form.value.image = URL.createObjectURL(file)
+    imageFile.value = file
+    imagePreview.value = URL.createObjectURL(file)
   }
 }
 
-const saveSecteur = () => {
-  console.log('Secteur créé', form.value)
-  // Simulation de redirection ou feedback...
-  alert('Le secteur a été ajouté avec succès !')
+const saveSecteur = async () => {
+  const formData = new FormData()
+  formData.append('titre', form.value.titre)
+  formData.append('description', form.value.description)
+  if (imageFile.value) {
+    formData.append('image', imageFile.value)
+  }
+
+  try {
+    await secteurStore.store(formData)
+    Swal.fire({
+      icon: 'success',
+      title: 'Secteur ajouté',
+      text: 'Le secteur a été créé avec succès.',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    })
+    router.push('/admin/secteurs')
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible d\'ajouter le secteur.', 'error')
+  }
 }
 </script>
 

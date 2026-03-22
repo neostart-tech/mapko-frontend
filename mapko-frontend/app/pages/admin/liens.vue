@@ -69,8 +69,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue'
+import { useLienStore } from '~~/stores/lien'
+import Swal from 'sweetalert2'
 
 definePageMeta({ layout: 'admin' })
+
+const lienStore = useLienStore()
 
 // Icons
 const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z' }), h('polyline', { points: '17 21 17 13 7 13 7 21' }), h('polyline', { points: '7 3 7 8 15 8' })])
@@ -87,18 +91,48 @@ const form = ref({
   x: ''
 })
 
-onMounted(() => {
-  // Mock Data
-  form.value = {
-    linkedin: 'https://www.linkedin.com/company/mapko',
-    facebook: 'https://www.facebook.com/mapko',
-    x: 'https://x.com/MapkoPartners'
+onMounted(async () => {
+  try {
+    const data = await lienStore.fetch()
+    if (data) {
+      form.value = {
+        linkedin: data.linkedin || '',
+        facebook: data.facebook || '',
+        x: data.x || ''
+      }
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des liens:', error)
   }
 })
 
-const updateLiens = () => {
-  console.log('Liens mis à jour :', form.value)
-  alert('Vos liens ont été mis à jour avec succès !')
+const updateLiens = async () => {
+  if (!lienStore.lien?.id) return
+
+  try {
+    await lienStore.update(lienStore.lien.id, form.value)
+    
+    Swal.fire({
+      title: 'Succès !',
+      text: 'Vos liens ont été mis à jour avec succès.',
+      icon: 'success',
+      confirmButtonColor: '#7A2E8E',
+      timer: 2000,
+      timerProgressBar: true,
+      customClass: {
+        popup: 'swal2-custom-popup',
+        title: 'swal2-custom-title',
+        confirmButton: 'swal2-custom-confirm'
+      }
+    })
+  } catch (error: any) {
+    Swal.fire({
+      title: 'Erreur',
+      text: error.message || 'Une erreur est survenue lors de la mise à jour.',
+      icon: 'error',
+      confirmButtonColor: '#7A2E8E'
+    })
+  }
 }
 </script>
 

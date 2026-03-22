@@ -3,7 +3,7 @@
     <!-- Breadcrumb -->
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Blogs' }]" />
 
-    <div v-if="pageLoading" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+    <div v-if="blogStore.loading && blogStore.blogs.length === 0" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
 
     <div v-else class="content-wrapper">
       <!-- HEADER CARD -->
@@ -18,7 +18,7 @@
           <div class="flex items-center gap-3">
              <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-bold">{{ blogs.length }} Articles</span>
+                <span class="text-xs font-bold">{{ blogStore.blogs.length }} Articles</span>
              </div>
              <NuxtLink to="/admin/blogs/ajouter" class="btn-add">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,7 +47,7 @@
           <div class="relative" ref="dropdownRef">
             <button @click="isDropdownOpen = !isDropdownOpen" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
               </svg>
               Colonnes
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform" :class="isDropdownOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,7 +81,7 @@
             :columns="visibleColumns"
             :search="searchQuery"
             :sortable="true"
-            :loading="loading"
+            :loading="blogStore.loading"
             skin="bh-table-hover bh-table-compact"
             class="custom-datatable"
             :pageSize="10"
@@ -93,9 +93,9 @@
             <template #couverture="data">
               <div 
                 class="h-12 w-20 min-w-[80px] rounded-lg bg-gray-100 bg-cover bg-center flex items-center justify-center overflow-hidden border border-gray-200"
-                :style="data.value.couverture ? { backgroundImage: `url(${data.value.couverture})` } : {}"
+                :style="getCouverture(data.value) ? { backgroundImage: `url(${getCouverture(data.value)})` } : {}"
               >
-                <span v-if="!data.value.couverture" class="text-[10px] text-gray-400 font-bold uppercase">Image</span>
+                <span v-if="!getCouverture(data.value)" class="text-[10px] text-gray-400 font-bold uppercase">Image</span>
               </div>
             </template>
 
@@ -109,7 +109,7 @@
             <!-- Titre Column -->
             <template #titre="data">
                <span class="text-sm font-bold text-black">{{ data.value.titre }}</span>
-               <div class="text-[10px] text-gray-400 mt-1 font-semibold uppercase">{{ formatDate(data.value.date) }}</div>
+               <div class="text-[10px] text-gray-400 mt-1 font-semibold uppercase">{{ formatDate(data.value.created_at) }}</div>
             </template>
 
             <!-- Contenu court -->
@@ -143,14 +143,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useBlogStore } from '~~/stores/blog';
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
+import Swal from 'sweetalert2';
 
 definePageMeta({ layout: 'admin' });
 
+const blogStore = useBlogStore();
+const config = useRuntimeConfig();
+
 const searchQuery = ref('');
-const loading = ref(false);
-const pageLoading = ref(true);
 
 const isDropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
@@ -162,6 +165,18 @@ const allColumns = ref([
   { field: 'contenu', title: 'Extrait du contenu', visible: true, sort: true },
   { field: 'actions', title: 'Actions', visible: true, sort: false, width: '120px', headerClass: 'justify-center', cellClass: 'justify-center' },
 ]);
+
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
+const getCouverture = (blog: any) => {
+  if (!blog.images || blog.images.length === 0) return '';
+  const cover = blog.images.find((img: any) => img.is_couverture) || blog.images[0];
+  return getImageUrl(cover.path);
+};
 
 // Helper for date formatting
 const formatDate = (dateString: string) => {
@@ -180,49 +195,48 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 }
 
-// Dummy Data (Mock API result mapping BLOGS and IMAGES)
-const blogs = ref([
-  { 
-    id: 1, 
-    titre: 'Les nouvelles initiatives en énergie solaire', 
-    categorie: 'Énergies Renouvelables',
-    contenu: 'Face au réchauffement climatique, notre nouvelle approche pour le développement énergétique permet de réduire les empreintes carbone drastiquement de façon efficace et responsable...', 
-    date: '2026-03-20',
-    couverture: 'https://images.unsplash.com/photo-1509391366360-12009cb9f3ac?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 2, 
-    titre: 'Modernisation des infrastructures routières en 2026', 
-    categorie: 'Infrastructures',
-    contenu: 'Découvrez comment les infrastructures routières transforment les échanges locaux et propulsent l\'économie de marché vers une perspective d\'interconnectivité sans précédent en Afrique de l\'Ouest.', 
-    date: '2026-03-10',
-    couverture: 'https://images.unsplash.com/photo-1541888081622-3a27a36cb3a1?auto=format&fit=crop&q=80&w=800'
-  },
-  { 
-    id: 3, 
-    titre: 'Conférence annuelle de logistique : Retours', 
-    categorie: 'Événements',
-    contenu: 'Nous étions présents à la dernière grande convention sur la logistique transport au mois de février. L\'occasion d\'aborder les enjeux de l\'import/export sécurisé...', 
-    date: '2026-02-28',
-    couverture: 'https://images.unsplash.com/photo-1586528116311-ad8ed7c1524f?auto=format&fit=crop&q=80&w=800'
-  }
-]);
+const blogs = computed(() => blogStore.blogs);
 
 const resetFilters = () => {
   searchQuery.value = '';
 };
 
-const confirmDelete = (blog: any) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer l'article "${blog.titre}" ?`)) {
-    blogs.value = blogs.value.filter(s => s.id !== blog.id);
+const confirmDelete = async (blog: any) => {
+  const result = await Swal.fire({
+    title: 'Supprimer cet article ?',
+    text: `Voulez-vous vraiment supprimer "${blog.titre}" ?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f43f5e',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+    customClass: {
+      popup: 'swal2-custom-popup',
+      confirmButton: 'swal2-custom-confirm',
+      cancelButton: 'swal2-custom-cancel'
+    }
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await blogStore.destroy(blog.id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Supprimé !',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: { popup: 'swal2-custom-popup' }
+      });
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de supprimer l\'article.', 'error');
+    }
   }
 };
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
-  setTimeout(() => {
-    pageLoading.value = false;
-  }, 400);
+  blogStore.fetch();
 });
 
 onUnmounted(() => {

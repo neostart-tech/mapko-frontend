@@ -4,7 +4,8 @@
       <div v-if="!isCollapsed" class="logo-area">
         <img src="/images/logo_mixte.png" alt="Mapko" class="sidebar-logo" />
       </div>
-      <div v-else class="logo-area-collapsed">M</div>
+      <div v-else><img src="/images/logo_mixte.png" alt="Mapko" class="sidebar-logo" />
+      </div>
       
       <button class="btn-close-mobile" @click="$emit('close')">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -25,10 +26,10 @@
         <NuxtLink to="/admin/messages" class="nav-link" active-class="is-active" title="Messages">
           <div class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span v-if="isCollapsed" class="dot-count"></span>
+            <span v-if="isCollapsed && messageStore.unreadCount > 0" class="dot-count"></span>
           </div>
           <span v-if="!isCollapsed" class="nav-label">Messages</span>
-          <span v-if="!isCollapsed" class="badge-count">3</span>
+          <span v-if="!isCollapsed && messageStore.unreadCount > 0" class="badge-count">{{ messageStore.unreadCount }}</span>
         </NuxtLink>
 
         <NuxtLink to="/admin/parametres" class="nav-link" active-class="is-active" title="Paramètres">
@@ -117,20 +118,46 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import Swal from 'sweetalert2'
+import { useAuthStore } from '~~/stores/auth'
+import { useMessageStore } from '~~/stores/message'
 
 defineProps<{
   isOpen: boolean,
   isCollapsed: boolean
 }>()
 
+const auth = useAuthStore()
+const messageStore = useMessageStore()
 const activeDropdown = ref<string | null>(null)
 
 const toggleDropdown = (name: string) => {
   activeDropdown.value = activeDropdown.value === name ? null : name
 }
 
-const logout = () => {
-  navigateTo('/admin/login')
+const logout = async () => {
+  const result = await Swal.fire({
+    title: 'Déconnexion ?',
+    text: "Êtes-vous sûr de vouloir quitter votre espace d'administration ?",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#7A2E8E',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Oui, me déconnecter',
+    cancelButtonText: 'Annuler',
+    background: '#ffffff',
+    color: '#1a202c',
+    customClass: {
+      popup: 'swal2-custom-popup',
+      title: 'swal2-custom-title',
+      confirmButton: 'swal2-custom-confirm',
+      cancelButton: 'swal2-custom-cancel'
+    }
+  })
+
+  if (result.isConfirmed) {
+    auth.logout()
+  }
 }
 </script>
 
@@ -369,5 +396,42 @@ const logout = () => {
   .btn-close-mobile {
     display: block;
   }
+}
+</style>
+
+<style>
+/* Custom SweetAlert Styles - Global needed for Swal */
+.swal2-custom-popup {
+  border-radius: 1.5rem !important;
+  font-family: 'Inter', sans-serif !important;
+  padding: 1rem !important;
+}
+
+.swal2-custom-title {
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  color: #1a202c !important;
+}
+
+.swal2-custom-confirm {
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+}
+
+.swal2-custom-cancel {
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 2rem !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+}
+
+.swal2-icon {
+  border: none !important;
+}
+
+.swal2-styled.swal2-confirm:focus {
+  box-shadow: 0 0 0 3px rgba(122, 46, 142, 0.2) !important;
 }
 </style>

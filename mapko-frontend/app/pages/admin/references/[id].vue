@@ -1,15 +1,17 @@
 <template>
   <div class="references-modifier-page">
-    <AdminBreadcrumb :items="[{ label: 'Références', to: '/admin/references' }, { label: 'Modifier une référence' }]" class="animate-reveal" />
+    <AdminBreadcrumb :items="[{ label: 'Références', link: '/admin/references' }, { label: 'Modifier une référence' }]" />
 
-    <div class="page-header animate-reveal reveal-delay-1">
+    <div class="page-header">
       <div class="header-text">
         <h1>Mettre à jour la Référence</h1>
         <p>Modifiez les détails de cette mission ou de ce projet.</p>
       </div>
     </div>
 
-    <div class="content-card animate-reveal reveal-delay-2">
+    <div v-if="loadingRef" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+
+    <div v-else class="content-card">
       <form @submit.prevent="updateReference" class="admin-form">
         <div class="form-grid">
           <!-- Colonne Principale -->
@@ -36,9 +38,9 @@
             
             <div class="form-group">
               <label>Secteur d'activité</label>
-              <select v-model="form.id_secteur" required class="custom-select focus-blue">
+              <select v-model="form.secteur_id" required class="custom-select focus-blue">
                 <option value="" disabled>Sélectionner un secteur</option>
-                <option v-for="secteur in secteurs" :key="secteur.id" :value="secteur.id">
+                <option v-for="secteur in secteurStore.secteurs" :key="secteur.id" :value="secteur.id">
                   {{ secteur.titre }}
                 </option>
               </select>
@@ -65,7 +67,7 @@
               <label>Statut</label>
               <div class="status-toggle">
                 <label class="status-option">
-                  <input type="radio" v-model="form.statut" value="en-cours" />
+                  <input type="radio" v-model="form.statut" value="en_cours" />
                   <span class="status-badge en-cours">En cours</span>
                 </label>
                 <label class="status-option">
@@ -79,9 +81,9 @@
 
         <div class="form-actions border-top">
           <NuxtLink to="/admin/references" class="btn-cancel">Annuler</NuxtLink>
-          <button type="submit" class="btn-save btn-save-edit">
+          <button type="submit" class="btn-save btn-save-edit" :disabled="referenceStore.loading">
              <component :is="IconSave" class="icon-sm" />
-             Sauvegarder les modifications
+             {{ referenceStore.loading ? 'Enregistrement...' : 'Sauvegarder les modifications' }}
           </button>
         </div>
       </form>
@@ -91,13 +93,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useReferenceStore } from '~~/stores/reference'
+import { useSecteurStore } from '~~/stores/secteur'
+import Swal from 'sweetalert2'
 import 'quill/dist/quill.snow.css';
 
 definePageMeta({ layout: 'admin' })
 
 const route = useRoute()
-const referenceId = route.params.id
+const router = useRouter()
+const referenceStore = useReferenceStore()
+const secteurStore = useSecteurStore()
+const referenceId = route.params.id as string
+
+const loadingRef = ref(true)
 
 // Icon
 const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z' }), h('polyline', { points: '17 21 17 13 7 13 7 21' }), h('polyline', { points: '7 3 7 8 15 8' })])
@@ -105,65 +115,80 @@ const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: 
 const form = ref({
   titre: '',
   description: '',
-  id_secteur: '',
+  secteur_id: '',
   pays: '',
   annee_debut: 2020,
-  annee_fin: '',
+  annee_fin: null as number | null,
   montant: '',
-  statut: 'en-cours'
+  statut: 'en_cours'
 })
 
 const editorContainer = ref<HTMLElement | null>(null);
 let quillInstance: any = null;
 
-// Mock des secteurs pour le select
-const secteurs = ref([
-  { id: 1, titre: 'Bâtiment et Travaux Publics' },
-  { id: 2, titre: 'Énergies Renouvelables' },
-  { id: 3, titre: 'Logistique & Transport' }
-])
-
 onMounted(async () => {
-  console.log('Chargement de la référence N°', referenceId)
-  // Mock récupération API
-  form.value = {
-    titre: 'Construction Port Autonome',
-    description: 'Phase 1 de l\'extension du port autonome comprenant le dragage, la construction de quais additionnels et l\'équipement logistique...',
-    id_secteur: '1',
-    pays: 'Togo',
-    annee_debut: 2021,
-    annee_fin: '2023',
-    montant: '12M FCFA',
-    statut: 'termine'
-  }
+  secteurStore.fetch();
+  
+  try {
+    const data = await referenceStore.show(referenceId)
+    form.value = {
+      titre: data.titre,
+      description: data.description || '',
+      secteur_id: data.secteur_id,
+      pays: data.pays,
+      annee_debut: data.annee_debut,
+      annee_fin: data.annee_fin || null,
+      montant: data.montant || '',
+      statut: data.statut === 'termine' ? 'termine' : 'en_cours'
+    }
 
-  if (import.meta.client && editorContainer.value) {
-    const Quill = (await import('quill')).default;
-    quillInstance = new Quill(editorContainer.value, {
-      theme: 'snow',
-      placeholder: 'Décrivez le contexte, l\'intervention et les résultats du projet...',
-      modules: {
-        toolbar: [
-           [{ 'header': [1, 2, 3, false] }],
-           ['bold', 'italic', 'underline', 'strike'],
-           [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-           ['link', 'clean']
-        ]
-      }
-    });
+    if (import.meta.client && editorContainer.value) {
+      const Quill = (await import('quill')).default;
+      quillInstance = new Quill(editorContainer.value, {
+        theme: 'snow',
+        placeholder: 'Décrivez le contexte, l\'intervention et les résultats du projet...',
+        modules: {
+          toolbar: [
+             [{ 'header': [1, 2, 3, false] }],
+             ['bold', 'italic', 'underline', 'strike'],
+             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+             ['link', 'clean']
+          ]
+        }
+      });
 
-    quillInstance.root.innerHTML = form.value.description;
+      quillInstance.root.innerHTML = form.value.description;
 
-    quillInstance.on('text-change', () => {
-       form.value.description = quillInstance.root.innerHTML;
-    });
+      quillInstance.on('text-change', () => {
+         form.value.description = quillInstance.root.innerHTML;
+      });
+    }
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de charger les données de la référence.', 'error')
+    router.push('/admin/references')
+  } finally {
+    loadingRef.value = false
   }
 })
 
-const updateReference = () => {
-  console.log('Référence mise à jour :', form.value)
-  alert('Les modifications ont été enregistrées avec succès !')
-  // Ici logiquement => navigateTo('/admin/references')
+const updateReference = async () => {
+  try {
+    const payload = { ...form.value };
+    if (!payload.annee_fin) payload.annee_fin = null;
+
+    await referenceStore.update(referenceId, payload);
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Référence mise à jour',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    router.push('/admin/references');
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de modifier la référence.', 'error');
+  }
 }
 </script>
 

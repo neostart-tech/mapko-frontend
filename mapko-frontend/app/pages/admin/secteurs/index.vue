@@ -4,7 +4,7 @@
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Secteurs' }]" />
 
     <!-- Skeleton Loader (simulé) -->
-    <div v-if="pageLoading" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+    <div v-if="secteurStore.loading && secteurStore.secteurs.length === 0" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
 
     <div v-else class="content-wrapper">
       <!-- HEADER CARD -->
@@ -82,7 +82,7 @@
             :columns="visibleColumns"
             :search="searchQuery"
             :sortable="true"
-            :loading="loading"
+            :loading="secteurStore.loading"
             skin="bh-table-hover bh-table-compact"
             class="custom-datatable"
             :pageSize="10"
@@ -136,14 +136,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useSecteurStore } from '~~/stores/secteur';
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
+import Swal from 'sweetalert2';
 
 definePageMeta({ layout: 'admin' });
 
+const config = useRuntimeConfig();
+const secteurStore = useSecteurStore();
+
 const searchQuery = ref('');
-const loading = ref(false);
-const pageLoading = ref(true);
 
 const isDropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
@@ -159,34 +162,60 @@ const visibleColumns = computed(() =>
   allColumns.value.filter((c) => c.visible).map((c) => ({ ...c }))
 );
 
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
 const handleClickOutside = (e: MouseEvent) => {
   if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
     isDropdownOpen.value = false;
   }
 }
 
-// Dummy Data
-const secteurs = ref([
-  { id: 1, titre: 'Bâtiment et Travaux Publics', description: 'Expertise dans la construction d\'infrastructures complexes, ponts, et routes.', image: 'https://images.unsplash.com/photo-1541888081622-3a27a36cb3a1?auto=format&fit=crop&q=80&w=800' },
-  { id: 2, titre: 'Énergies Renouvelables', description: 'Solutions pour l\'énergie solaire, éolienne, et hydraulique en Afrique.', image: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&q=80&w=800' },
-  { id: 3, titre: 'Logistique & Transport', description: 'Organisation des flux de marchandises à travers le continent depuis plus de dix ans.', image: 'https://images.unsplash.com/photo-1586528116311-ad8ed7c1524f?auto=format&fit=crop&q=80&w=800' }
-]);
+const secteurs = computed(() => secteurStore.secteurs);
 
 const resetFilters = () => {
   searchQuery.value = '';
 };
 
-const confirmDelete = (secteur: any) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le secteur "${secteur.titre}" ?`)) {
-    secteurs.value = secteurs.value.filter(s => s.id !== secteur.id);
+const confirmDelete = async (secteur: any) => {
+  const result = await Swal.fire({
+    title: 'Supprimer ce secteur ?',
+    text: `Cela supprimera également toutes les références liées à "${secteur.titre}".`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f43f5e',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+    customClass: {
+      popup: 'swal2-custom-popup',
+      confirmButton: 'swal2-custom-confirm',
+      cancelButton: 'swal2-custom-cancel'
+    }
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await secteurStore.destroy(secteur.id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Supprimé !',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: { popup: 'swal2-custom-popup' }
+      });
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de supprimer le secteur.', 'error');
+    }
   }
 };
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
-  setTimeout(() => {
-    pageLoading.value = false;
-  }, 600);
+  secteurStore.fetch();
 });
 
 onUnmounted(() => {

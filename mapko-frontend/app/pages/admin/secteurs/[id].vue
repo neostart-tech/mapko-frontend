@@ -1,15 +1,17 @@
 <template>
   <div class="secteurs-modifier-page">
-    <AdminBreadcrumb :items="[{ label: 'Secteurs', to: '/admin/secteurs' }, { label: 'Modifier un secteur' }]" class="animate-reveal" />
+    <AdminBreadcrumb :items="[{ label: 'Secteurs', link: '/admin/secteurs' }, { label: 'Modifier un secteur' }]" />
 
-    <div class="page-header animate-reveal reveal-delay-1">
+    <div class="page-header">
       <div class="header-text">
         <h1>Modifier le Secteur</h1>
         <p>Mettez à jour les informations de ce domaine d'expertise.</p>
       </div>
     </div>
 
-    <div class="content-card animate-reveal reveal-delay-2">
+    <div v-if="loadingSecteur" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+
+    <div v-else class="content-card">
       <form @submit.prevent="updateSecteur" class="admin-form">
         <div class="form-grid">
           <!-- Colonne Principale -->
@@ -30,15 +32,15 @@
             <div class="form-group">
               <label>Image d'illustration principale</label>
               
-              <div class="image-upload-box" :class="{ 'has-image': form.image }">
-                <div v-if="!form.image" class="upload-placeholder">
+              <div class="image-upload-box" :class="{ 'has-image': imagePreview }">
+                <div v-if="!imagePreview" class="upload-placeholder">
                   <component :is="IconImage" class="upload-icon" />
                   <p>Cliquez ou glissez une image ici</p>
                   <span class="upload-hint">Formats : JPG, PNG, WEBP (Max 5MB)</span>
                 </div>
                 <div v-else class="preview-container">
-                  <img :src="form.image" class="image-preview" alt="Aperçu" />
-                  <button type="button" class="btn-remove-img" @click.stop="form.image = ''" title="Retirer l'image">
+                  <img :src="imagePreview" class="image-preview" alt="Aperçu" />
+                  <button type="button" class="btn-remove-img" @click.stop="imagePreview = ''; imageFile = null" title="Retirer l'image">
                     <component :is="IconClose" />
                   </button>
                 </div>
@@ -52,9 +54,9 @@
 
         <div class="form-actions border-top">
           <NuxtLink to="/admin/secteurs" class="btn-cancel">Annuler</NuxtLink>
-          <button type="submit" class="btn-save btn-save-edit">
+          <button type="submit" class="btn-save btn-save-edit" :disabled="secteurStore.loading">
              <component :is="IconSave" class="icon-sm" />
-             Mettre à jour le secteur
+             {{ secteurStore.loading ? 'Mise à jour...' : 'Mettre à jour le secteur' }}
           </button>
         </div>
       </form>
@@ -64,31 +66,54 @@
 
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useSecteurStore } from '~~/stores/secteur'
+import Swal from 'sweetalert2'
 
 definePageMeta({ layout: 'admin' })
 
 const route = useRoute()
-const sectorId = route.params.id
+const router = useRouter()
+const secteurStore = useSecteurStore()
+const config = useRuntimeConfig()
+const sectorId = route.params.id as string
+
+const loadingSecteur = ref(true)
 
 // Icons
 const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z' }), h('polyline', { points: '17 21 17 13 7 13 7 21' }), h('polyline', { points: '7 3 7 8 15 8' })])
 const IconImage = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '2', ry: '2' }), h('circle', { cx: '8.5', cy: '8.5', r: '1.5' }), h('polyline', { points: '21 15 16 10 5 21' })])
 const IconClose = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('line', { x1: '18', y1: '6', x2: '6', y2: '18' }), h('line', { x1: '6', y1: '6', x2: '18', y2: '18' })])
 
+const imageFile = ref<File | null>(null)
+const imagePreview = ref('')
+
 const form = ref({
   titre: '',
   description: '',
-  image: ''
 })
 
-onMounted(() => {
-  // Mock récupération des données depuis une API
-  console.log('Chargement du secteur N°', sectorId)
-  form.value = {
-    titre: 'Bâtiment et Travaux Publics',
-    description: 'Expertise dans la construction d\'infrastructures complexes, ponts, et routes.',
-    image: 'https://images.unsplash.com/photo-1541888081622-3a27a36cb3a1?auto=format&fit=crop&q=80&w=800'
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
+onMounted(async () => {
+  try {
+    const data = await secteurStore.show(sectorId)
+    form.value = {
+      titre: data.titre,
+      description: data.description || '',
+    }
+    if (data.image) {
+      imagePreview.value = getImageUrl(data.image)
+    }
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de charger les données du secteur.', 'error')
+    router.push('/admin/secteurs')
+  } finally {
+    loadingSecteur.value = false
   }
 })
 
@@ -96,13 +121,32 @@ const handleFileUpload = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     const file = target.files[0]
-    form.value.image = URL.createObjectURL(file)
+    imageFile.value = file
+    imagePreview.value = URL.createObjectURL(file)
   }
 }
 
-const updateSecteur = () => {
-  console.log('Secteur mis à jour', form.value)
-  alert('Les modifications ont été enregistrées avec succès !')
+const updateSecteur = async () => {
+  const formData = new FormData()
+  formData.append('titre', form.value.titre)
+  formData.append('description', form.value.description)
+  if (imageFile.value) {
+    formData.append('image', imageFile.value)
+  }
+
+  try {
+    await secteurStore.update(sectorId, formData)
+    Swal.fire({
+      icon: 'success',
+      title: 'Secteur mis à jour',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    })
+    router.push('/admin/secteurs')
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de modifier le secteur.', 'error')
+  }
 }
 </script>
 

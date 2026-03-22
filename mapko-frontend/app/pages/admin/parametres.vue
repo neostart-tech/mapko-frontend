@@ -118,15 +118,30 @@
         <form @submit.prevent="savePassword" class="modal-form">
           <div class="form-group">
             <label>Ancien mot de passe</label>
-            <input type="password" v-model="passwordForm.old" required />
+            <div class="input-password-wrapper">
+              <input :type="showPasswords.old ? 'text' : 'password'" v-model="passwordForm.old_password" required />
+              <button type="button" class="btn-toggle-eye" @click="showPasswords.old = !showPasswords.old">
+                <component :is="showPasswords.old ? IconEyeOff : IconEye" />
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label>Nouveau mot de passe</label>
-            <input type="password" v-model="passwordForm.new" required />
+            <div class="input-password-wrapper">
+              <input :type="showPasswords.new ? 'text' : 'password'" v-model="passwordForm.new_password" required />
+              <button type="button" class="btn-toggle-eye" @click="showPasswords.new = !showPasswords.new">
+                <component :is="showPasswords.new ? IconEyeOff : IconEye" />
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label>Confirmer le nouveau mot de passe</label>
-            <input type="password" v-model="passwordForm.confirm" required />
+            <div class="input-password-wrapper">
+              <input :type="showPasswords.confirm ? 'text' : 'password'" v-model="passwordForm.new_password_confirmation" required />
+              <button type="button" class="btn-toggle-eye" @click="showPasswords.confirm = !showPasswords.confirm">
+                <component :is="showPasswords.confirm ? IconEyeOff : IconEye" />
+              </button>
+            </div>
           </div>
           <p v-if="passwordError" class="error-msg">{{ passwordError }}</p>
           <div class="modal-actions">
@@ -140,36 +155,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h } from 'vue'
+import { ref, h, onMounted } from 'vue'
+import { useUserStore } from '~~/stores/user'
+import { useAuthStore } from '~~/stores/auth'
+import Swal from 'sweetalert2'
 
 definePageMeta({
   layout: 'admin'
 })
+
+const userStore = useUserStore()
+const authStore = useAuthStore()
 
 // Custom SVG Icons
 const IconUser = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('path', { d: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' }), h('circle', { cx: '12', cy: '7', r: '4' })])
 const IconLock = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('rect', { x: '3', y: '11', width: '18', height: '11', rx: '2', ry: '2' }), h('path', { d: 'M7 11V7a5 5 0 0 1 10 0v4' })])
 const IconEdit = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '16', height: '16', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('path', { d: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' }), h('path', { d: 'M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' })])
 const IconClose = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('line', { x1: '18', y1: '6', x2: '6', y2: '18' }), h('line', { x1: '6', y1: '6', x2: '18', y2: '18' })])
+const IconEye = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '18', height: '18', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('path', { d: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' }), h('circle', { cx: '12', cy: '12', r: '3' })])
+const IconEyeOff = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '18', height: '18', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, [h('path', { d: 'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24' }), h('line', { x1: '1', y1: '1', x2: '23', y2: '23' })])
 
 const userInfo = ref({
-  lastName: 'Admin',
-  firstName: 'Mapko',
-  email: 'contact@mapko.com',
-  phone: '+228 90 00 00 00'
+  lastName: '',
+  firstName: '',
+  email: '',
+  phone: ''
+})
+
+const initializeUserInfo = () => {
+  if (authStore.user) {
+    userInfo.value = {
+      lastName: authStore.user.nom || '',
+      firstName: authStore.user.prenom || '',
+      email: authStore.user.email || '',
+      phone: authStore.user.telephone || ''
+    }
+  }
+}
+
+onMounted(() => {
+  initializeUserInfo()
 })
 
 const formUserInfo = ref({ ...userInfo.value })
 
 const passwordForm = ref({
-  old: '',
-  new: '',
-  confirm: ''
+  old_password: '',
+  new_password: '',
+  new_password_confirmation: ''
 })
 
 const isPersonalInfoModalOpen = ref(false)
 const isPasswordModalOpen = ref(false)
 const passwordError = ref('')
+
+const showPasswords = ref({
+  old: false,
+  new: false,
+  confirm: false
+})
 
 const openPersonalInfoModal = () => {
   formUserInfo.value = { ...userInfo.value }
@@ -177,7 +221,7 @@ const openPersonalInfoModal = () => {
 }
 
 const openPasswordModal = () => {
-  passwordForm.value = { old: '', new: '', confirm: '' }
+  passwordForm.value = { old_password: '', new_password: '', new_password_confirmation: '' }
   passwordError.value = ''
   isPasswordModalOpen.value = true
 }
@@ -187,19 +231,62 @@ const closeModals = () => {
   isPasswordModalOpen.value = false
 }
 
-const savePersonalInfo = () => {
-  userInfo.value = { ...formUserInfo.value }
-  closeModals()
+const savePersonalInfo = async () => {
+  try {
+    await userStore.updateProfile({
+      nom: formUserInfo.value.lastName,
+      prenom: formUserInfo.value.firstName,
+      email: formUserInfo.value.email,
+      telephone: formUserInfo.value.phone
+    })
+    
+    initializeUserInfo()
+    closeModals()
+    
+    Swal.fire({
+      title: 'Profil mis à jour',
+      icon: 'success',
+      confirmButtonColor: '#7A2E8E',
+      timer: 2000,
+      customClass: {
+        popup: 'swal2-custom-popup',
+        confirmButton: 'swal2-custom-confirm'
+      }
+    })
+  } catch (error: any) {
+    Swal.fire({
+      title: 'Erreur',
+      text: error.message || 'Impossible de mettre à jour le profil.',
+      icon: 'error',
+      confirmButtonColor: '#7A2E8E'
+    })
+  }
 }
 
-const savePassword = () => {
-  if (passwordForm.value.new !== passwordForm.value.confirm) {
+const savePassword = async () => {
+  if (passwordForm.value.new_password !== passwordForm.value.new_password_confirmation) {
     passwordError.value = 'Les mots de passe ne correspondent pas.'
     return
   }
-  // Logique d'envoi API...
-  console.log('Mot de passe mis à jour !')
-  closeModals()
+  
+  try {
+    await userStore.updatePassword(passwordForm.value)
+    
+    closeModals()
+    Swal.fire({
+      title: 'Mot de passe modifié',
+      text: 'Votre sécurité a été mise à jour.',
+      icon: 'success',
+      confirmButtonColor: '#0F4C81',
+      timer: 2000,
+      customClass: {
+        popup: 'swal2-custom-popup',
+        confirmButton: 'swal2-custom-confirm'
+      }
+    })
+  } catch (error: any) {
+    passwordError.value = error.message || 'Erreur lors du changement de mot de passe.'
+  }
 }
 </script>
 
@@ -456,11 +543,44 @@ const savePassword = () => {
   color: #0f172a;
   outline: none;
   transition: all 0.2s ease;
+  background: #f8fafc; /* Fond "plein" comme sur le login */
 }
 
 .form-group input:focus {
+  background: #ffffff;
   border-color: var(--color-violet);
   box-shadow: 0 0 0 4px rgba(122, 46, 142, 0.1);
+}
+
+.input-password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-password-wrapper input {
+  width: 100%;
+  padding-right: 3.25rem;
+}
+
+.btn-toggle-eye {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.2s ease;
+  z-index: 5;
+}
+
+.btn-toggle-eye:hover {
+  color: var(--color-violet);
 }
 
 .error-msg {

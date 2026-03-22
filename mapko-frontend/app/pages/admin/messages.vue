@@ -3,8 +3,8 @@
     <!-- Breadcrumb -->
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Messages' }]" />
 
-    <!-- Skeleton Loader (simulé) -->
-    <div v-if="pageLoading" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+    <!-- Skeleton Loader -->
+    <div v-if="messageStore.loading && messageStore.messages.length === 0" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
 
     <div v-else class="content-wrapper">
       <!-- HEADER CARD -->
@@ -82,7 +82,7 @@
             :columns="visibleColumns"
             :search="search"
             :sortable="true"
-            :loading="loading"
+            :loading="messageStore.loading"
             skin="bh-table-hover bh-table-compact"
             class="custom-datatable"
             :pageSize="10"
@@ -91,17 +91,17 @@
             :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'"
           >
             <!-- Nom Column with Unread Indicator -->
-            <template #nom="data">
+            <template #expediteur="data">
               <div class="flex items-center gap-3">
                 <div 
                   class="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-xs"
-                  :style="{ background: data.value.isRead ? '#f1f5f9' : 'rgba(122, 46, 142, 0.1)', color: data.value.isRead ? '#64748b' : '#7A2E8E' }"
+                  :style="{ background: data.value.statut ? '#f1f5f9' : 'rgba(122, 46, 142, 0.1)', color: data.value.statut ? '#64748b' : '#7A2E8E' }"
                 >
-                  {{ data.value.nom.charAt(0) }}
+                  {{ data.value.expediteur.charAt(0) }}
                 </div>
                 <div class="flex flex-col">
-                  <span class="text-sm font-bold" :class="data.value.isRead ? 'text-gray-600' : 'text-black'">{{ data.value.nom }}</span>
-                  <span v-if="!data.value.isRead" class="text-[10px] text-violet-600 font-extrabold uppercase tracking-tighter">Nouveau</span>
+                  <span class="text-sm font-bold" :class="data.value.statut ? 'text-gray-600' : 'text-black'">{{ data.value.expediteur }}</span>
+                  <span v-if="!data.value.statut" class="text-[10px] text-violet-600 font-extrabold uppercase tracking-tighter">Nouveau</span>
                 </div>
               </div>
             </template>
@@ -111,8 +111,8 @@
                <span class="text-sm text-gray-600 truncate max-w-[150px] inline-block" :title="data.value.objet">{{ data.value.objet }}</span>
             </template>
 
-            <template #message="data">
-               <span class="text-sm text-gray-500 truncate max-w-[200px] inline-block italic" :title="data.value.message">{{ data.value.message }}</span>
+            <template #contenu="data">
+               <span class="text-sm text-gray-500 truncate max-w-[200px] inline-block italic" :title="data.value.contenu">{{ data.value.contenu }}</span>
             </template>
 
             <!-- Actions Slot -->
@@ -171,7 +171,7 @@
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-gray-50 rounded-2xl p-4">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Expéditeur</p>
-                <p class="text-sm font-bold text-black">{{ selectedMessage.nom }}</p>
+                <p class="text-sm font-bold text-black">{{ selectedMessage.expediteur }}</p>
               </div>
               <div class="bg-gray-50 rounded-2xl p-4 text-right">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Téléphone</p>
@@ -193,7 +193,7 @@
             <div class="space-y-2">
               <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Contenu du message</p>
               <div class="bg-gray-50 rounded-2xl p-6 min-h-[120px]">
-                  <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{{ selectedMessage.message }}</p>
+                  <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{{ selectedMessage.contenu }}</p>
               </div>
             </div>
           </div>
@@ -217,17 +217,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useMessageStore } from '~~/stores/message';
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
+import Swal from 'sweetalert2';
 
 definePageMeta({
   layout: 'admin'
 });
 
+const messageStore = useMessageStore();
+
 const search = ref('');
-const loading = ref(false);
-const pageLoading = ref(true);
 const filterStatus = ref('all');
 const selectedMessage = ref<any>(null);
 
@@ -235,11 +237,11 @@ const isDropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 
 const allColumns = ref([
-  { field: 'nom', title: 'Expéditeur', visible: true, sort: true, width: '220px' },
+  { field: 'expediteur', title: 'Expéditeur', visible: true, sort: true, width: '220px' },
   { field: 'email', title: 'Email', visible: true, sort: true },
   { field: 'telephone', title: 'Téléphone', visible: true, sort: true, width: '130px' },
   { field: 'objet', title: 'Objet', visible: true, sort: true },
-  { field: 'message', title: 'Message', visible: true, sort: true },
+  { field: 'contenu', title: 'Message', visible: true, sort: true },
   { field: 'actions', title: 'Détails', visible: true, sort: false, width: '140px', headerClass: 'justify-center', cellClass: 'justify-center' },
 ]);
 
@@ -253,23 +255,15 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 };
 
-// Dummy Data
-const rows = ref([
-  { id: 1, nom: 'Jean Dupont', email: 'jean.dupont@example.com', telephone: '+228 90 00 00 00', objet: 'Demande de devis logistique', message: 'Bonjour, je souhaiterais obtenir un devis pour le transport de marchandises vers le port de Lomé.', isRead: false },
-  { id: 2, nom: 'Marie Kouadio', email: 'm.kouadio@business.ci', telephone: '+225 01 02 03 04', objet: 'Collaboration BTP', message: 'Nous sommes intéressés par une collaboration sur le prochain projet de construction de ponts.', isRead: true },
-  { id: 3, nom: 'Idrissa Diallo', email: 'idrissa.d@energy.sn', telephone: '+221 77 123 45 67', objet: 'Centrale Solaire', message: 'Votre expertise en énergie solaire nous intéresse pour un projet à Dakar.', isRead: false },
-  { id: 4, nom: 'Fatou Traoré', email: 'f.traore@gov.bf', telephone: '+226 25 30 15 15', objet: 'Infrastructure Rail', message: 'Compte rendu de la réunion sur le développement ferroviaire régional.', isRead: true },
-  { id: 5, nom: 'Kodjo Amétépé', email: 'k.ametepe@portlome.tg', telephone: '+228 22 23 45 67', objet: 'Modernisation quai', message: 'Suite à notre échange, voici les documents techniques requis pour le quai sud.', isRead: false },
-  { id: 6, nom: 'Sara Lawson', email: 'sara.lawson@invest.com', telephone: '+233 24 555 1234', objet: 'Opportunité Investissement', message: 'Seriez-vous disponible pour un appel concernant les investissements en Afrique de l\'Ouest ?', isRead: true },
-]);
+const rows = computed(() => messageStore.messages);
 
 const filteredRows = computed(() => {
-  let data = rows.value;
+  let data = [...rows.value];
   
   if (filterStatus.value === 'unread') {
-    data = data.filter(r => !r.isRead);
+    data = data.filter(r => !r.statut);
   } else if (filterStatus.value === 'read') {
-    data = data.filter(r => r.isRead);
+    data = data.filter(r => r.statut);
   }
   
   return data;
@@ -280,36 +274,61 @@ const resetFilters = () => {
   filterStatus.value = 'all';
 };
 
-const openMessage = (msg: any) => {
+const openMessage = async (msg: any) => {
   selectedMessage.value = { ...msg };
-  // Mark as read when opened
-  const target = rows.value.find(r => r.id === msg.id);
-  if (target) {
-    target.isRead = true;
-  }
+  // L'action show du store marque déjà comme lu en DB si nécessaire
+  await messageStore.show(msg.id);
 };
 
 const sendEmail = (msg: any) => {
   const subject = encodeURIComponent(`RE: ${msg.objet}`);
-  const body = encodeURIComponent(`Bonjour ${msg.nom},\n\nSuite à votre message concernant "${msg.objet}"...\n\nCordialement,\nL'équipe Mapko`);
+  const body = encodeURIComponent(`Bonjour ${msg.expediteur},\n\nSuite à votre message concernant "${msg.objet}"...\n\nCordialement,\nL'équipe Mapko`);
   window.location.href = `mailto:${msg.email}?subject=${subject}&body=${body}`;
 };
 
-const deleteMessage = (msg: any) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement le message de ${msg.nom} ?`)) {
-    rows.value = rows.value.filter(r => r.id !== msg.id);
+const deleteMessage = async (msg: any) => {
+  const result = await Swal.fire({
+    title: 'Supprimer ce message ?',
+    text: `Voulez-vous vraiment supprimer le message de ${msg.expediteur} ? Cette action est irréversible.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f43f5e',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+    customClass: {
+      popup: 'swal2-custom-popup',
+      confirmButton: 'swal2-custom-confirm',
+      cancelButton: 'swal2-custom-cancel'
+    }
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await messageStore.destroy(msg.id);
+      Swal.fire({
+        title: 'Supprimé !',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        customClass: { popup: 'swal2-custom-popup' }
+      });
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de supprimer le message.', 'error');
+    }
   }
 };
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
-  setTimeout(() => {
-    pageLoading.value = false;
-  }, 600);
+  messageStore.startPolling();
 });
 
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
+  // On ne coupe pas forcément le polling ici si on veut que le badge sidebar reste à jour
+  // Mais par précaution pour la performance, on peut le laisser ou le mettre dans un plugin global.
+  // Ici on le laisse tourner globalement car il est lancé dans startPolling qui vérifie si l'intervalle existe.
 });
 </script>
 

@@ -1,15 +1,15 @@
 <template>
   <div class="blogs-ajouter-page">
-    <AdminBreadcrumb :items="[{ label: 'Blogs', to: '/admin/blogs' }, { label: 'Ajouter un blog' }]" class="animate-reveal" />
+    <AdminBreadcrumb :items="[{ label: 'Blogs', link: '/admin/blogs' }, { label: 'Ajouter un blog' }]" />
 
-    <div class="page-header animate-reveal reveal-delay-1">
+    <div class="page-header">
       <div class="header-text">
         <h1>Rédiger un Article</h1>
         <p>Publiez du contenu, des actualités ou des expertises.</p>
       </div>
     </div>
 
-    <div class="content-card animate-reveal reveal-delay-2">
+    <div class="content-card">
       <form @submit.prevent="saveBlog" class="admin-form">
         <div class="form-grid">
           <!-- Colonne Principale -->
@@ -41,11 +41,6 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label>Date de publication</label>
-              <input type="date" v-model="form.date" required />
-            </div>
-
             <!-- Image de Couverture -->
             <div class="form-group mt-4">
               <label class="flex justify-between items-center">
@@ -53,15 +48,15 @@
                 <span class="text-[9px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Requis</span>
               </label>
               
-              <div class="image-upload-box cover" :class="{ 'has-image': form.couverture }">
-                <div v-if="!form.couverture" class="upload-placeholder">
+              <div class="image-upload-box cover" :class="{ 'has-image': form.couverturePreview }">
+                <div v-if="!form.couverturePreview" class="upload-placeholder">
                   <component :is="IconImage" class="upload-icon" />
                   <p>Glissez l'image de couverture</p>
                   <span class="upload-hint">1200 x 630px recommandé</span>
                 </div>
                 <div v-else class="preview-container">
-                  <img :src="form.couverture" class="image-preview" alt="Couverture" />
-                  <button type="button" class="btn-remove-img" @click.stop="form.couverture = ''" title="Retirer">
+                  <img :src="form.couverturePreview" class="image-preview" alt="Couverture" />
+                  <button type="button" class="btn-remove-img" @click.stop="removeCover" title="Retirer">
                     <component :is="IconClose" />
                   </button>
                 </div>
@@ -94,9 +89,9 @@
 
         <div class="form-actions border-top">
           <NuxtLink to="/admin/blogs" class="btn-cancel">Annuler</NuxtLink>
-          <button type="submit" class="btn-save">
+          <button type="submit" class="btn-save" :disabled="blogStore.loading">
              <component :is="IconSave" class="icon-sm" />
-             Publier l'article
+             {{ blogStore.loading ? 'Publication...' : "Publier l'article" }}
           </button>
         </div>
       </form>
@@ -106,9 +101,14 @@
 
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue'
+import { useBlogStore } from '~~/stores/blog'
+import Swal from 'sweetalert2'
 import 'quill/dist/quill.snow.css';
 
 definePageMeta({ layout: 'admin' })
+
+const blogStore = useBlogStore()
+const router = useRouter()
 
 // Icons
 const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z' }), h('polyline', { points: '17 21 17 13 7 13 7 21' }), h('polyline', { points: '7 3 7 8 15 8' })])
@@ -116,16 +116,13 @@ const IconImage = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox:
 const IconClose = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('line', { x1: '18', y1: '6', x2: '6', y2: '18' }), h('line', { x1: '6', y1: '6', x2: '18', y2: '18' })])
 const IconPlus = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('line', { x1: '12', y1: '5', x2: '12', y2: '19' }), h('line', { x1: '5', y1: '12', x2: '19', y2: '12' })])
 
-// Default to today
-const today = new Date().toISOString().split('T')[0];
-
 const form = ref({
   titre: '',
   categorie: '',
   contenu: '',
-  date: today,
-  couverture: '', // maps to IMAGES where is_couverture=true
-  galerie: [] as { file: File, preview: string }[] // maps to IMAGES where is_couverture=false
+  couvertureFile: null as File | null,
+  couverturePreview: '',
+  galerie: [] as { file: File, preview: string }[]
 })
 
 const editorContainer = ref<HTMLElement | null>(null);
@@ -157,18 +154,28 @@ const handleCoverUpload = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     const file = target.files[0]
-    form.value.couverture = URL.createObjectURL(file)
+    if (file) {
+      form.value.couvertureFile = file
+      form.value.couverturePreview = URL.createObjectURL(file)
+    }
   }
+}
+
+const removeCover = () => {
+  form.value.couvertureFile = null
+  form.value.couverturePreview = ''
 }
 
 const handleGalleryUpload = (e: Event) => {
   const target = e.target as HTMLInputElement
-  if (target.files) {
+  if (target.files && target.files.length > 0) {
     Array.from(target.files).forEach(file => {
-      form.value.galerie.push({
-        file,
-        preview: URL.createObjectURL(file)
-      })
+      if (file) {
+        form.value.galerie.push({
+          file,
+          preview: URL.createObjectURL(file)
+        })
+      }
     })
   }
 }
@@ -177,10 +184,40 @@ const removeGalleryImg = (index: number) => {
   form.value.galerie.splice(index, 1);
 }
 
-const saveBlog = () => {
-  console.log('Article enregistré :', form.value)
-  alert('L\'article a été publié avec succès !')
-  // Logique API puis navigateTo('/admin/blogs')
+const saveBlog = async () => {
+  if (!form.value.couvertureFile) {
+    Swal.fire('Attention', 'L\'image de couverture est requise.', 'warning');
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('titre', form.value.titre);
+    formData.append('categorie', form.value.categorie);
+    formData.append('contenu', form.value.contenu);
+    
+    // On ajoute la couverture en premier avec un flag si nécessaire, ou on gère côté backend
+    // Ici on suppose que le backend prend un tableau d'images
+    formData.append('images[]', form.value.couvertureFile);
+    
+    form.value.galerie.forEach(item => {
+      formData.append('images[]', item.file);
+    });
+
+    await blogStore.store(formData);
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Article publié',
+      text: 'L\'article a été publié avec succès.',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    router.push('/admin/blogs');
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de publier l\'article.', 'error');
+  }
 }
 </script>
 

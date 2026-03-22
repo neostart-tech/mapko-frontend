@@ -3,7 +3,7 @@
     <!-- Breadcrumb -->
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Partenaires' }]" />
 
-    <div v-if="pageLoading" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+    <div v-if="partenaireStore.loading && partenaireStore.partenaires.length === 0" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
 
     <div v-else class="content-wrapper">
       <!-- HEADER CARD -->
@@ -18,7 +18,7 @@
           <div class="flex items-center gap-3">
              <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-bold">{{ partenaires.length }} Partenaires</span>
+                <span class="text-xs font-bold">{{ partenaireStore.partenaires.length }} Partenaires</span>
              </div>
              <button @click="openAddModal" class="btn-add">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,22 +47,22 @@
         <!-- TABLE -->
         <div class="p-6">
           <vue3-datatable
-            :rows="partenaires"
+            :rows="partenaireStore.partenaires"
             :columns="allColumns"
             :search="searchQuery"
             :sortable="true"
-            :loading="loading"
+            :loading="partenaireStore.loading"
             skin="bh-table-hover bh-table-compact"
             class="custom-datatable"
             :pageSize="10"
-            :totalRows="partenaires.length"
+            :totalRows="partenaireStore.partenaires.length"
             :noDataContent="'Aucun partenaire trouvé'"
             :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'"
           >
             <!-- Logo Column -->
             <template #logo="data">
               <div class="h-16 w-16 min-w-[64px] rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100 p-2">
-                <img v-if="data.value.logo" :src="data.value.logo" class="max-h-full max-w-full object-contain" alt="Logo" />
+                <img v-if="data.value.logo" :src="getImageUrl(data.value.logo)" class="max-h-full max-w-full object-contain" alt="Logo" />
                 <span v-else class="text-[10px] text-gray-400 font-bold uppercase">Logo</span>
               </div>
             </template>
@@ -97,7 +97,7 @@
     <!-- MODALS -->
     <!-- Modal d'Ajout -->
     <div v-if="isAddModalOpen" class="modal-overlay" @click.self="closeModals">
-      <div class="modal-content animate-reveal is-active">
+      <div class="modal-content is-active">
         <div class="modal-header">
           <h3>Ajouter un Partenaire</h3>
           <button class="btn-close" @click="closeModals" title="Fermer">
@@ -113,15 +113,15 @@
 
           <div class="form-group">
             <label>Logo</label>
-            <div class="image-upload-box" :class="{ 'has-image': form.logo }">
-              <div v-if="!form.logo" class="upload-placeholder">
+            <div class="image-upload-box" :class="{ 'has-image': logoPreview }">
+              <div v-if="!logoPreview" class="upload-placeholder">
                 <component :is="IconImage" class="upload-icon" />
                 <p>Cliquez ou glissez le logo ici</p>
                 <span class="upload-hint">Formats: PNG, JPG (SVG recommandé)</span>
               </div>
               <div v-else class="preview-container">
-                <img :src="form.logo" class="image-preview" alt="Logo Aperçu" />
-                <button type="button" class="btn-remove-img" @click.stop="form.logo = ''" title="Retirer">
+                <img :src="logoPreview" class="image-preview" alt="Logo Aperçu" />
+                <button type="button" class="btn-remove-img" @click.stop="logoPreview = ''; logoFile = null" title="Retirer">
                   <component :is="IconClose" />
                 </button>
               </div>
@@ -139,7 +139,7 @@
 
     <!-- Modal de Modification -->
     <div v-if="isEditModalOpen" class="modal-overlay" @click.self="closeModals">
-      <div class="modal-content animate-reveal is-active">
+      <div class="modal-content is-active">
         <div class="modal-header">
           <h3>Modifier le Partenaire</h3>
           <button class="btn-close" @click="closeModals" title="Fermer">
@@ -150,20 +150,19 @@
         <form @submit.prevent="submitEdit" class="modal-form">
           <div class="form-group">
             <label>Nom du partenaire</label>
-            <!-- focus-blue pour marquer le mode édition -->
             <input type="text" v-model="form.nom" class="focus-blue" placeholder="Saisissez le nom..." required />
           </div>
 
           <div class="form-group">
             <label>Logo</label>
-            <div class="image-upload-box edit-mode" :class="{ 'has-image': form.logo }">
-              <div v-if="!form.logo" class="upload-placeholder">
+            <div class="image-upload-box edit-mode" :class="{ 'has-image': logoPreview }">
+              <div v-if="!logoPreview" class="upload-placeholder">
                 <component :is="IconImage" class="upload-icon" />
                 <p>Cliquez ou glissez le logo ici</p>
               </div>
               <div v-else class="preview-container">
-                <img :src="form.logo" class="image-preview" alt="Logo Aperçu" />
-                <button type="button" class="btn-remove-img" @click.stop="form.logo = ''" title="Retirer">
+                <img :src="logoPreview" class="image-preview" alt="Logo Aperçu" />
+                <button type="button" class="btn-remove-img" @click.stop="logoPreview = ''; logoFile = null" title="Retirer">
                   <component :is="IconClose" />
                 </button>
               </div>
@@ -183,19 +182,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, h } from 'vue';
+import { ref, onMounted, computed, h } from 'vue';
+import { usePartenaireStore } from '~~/stores/partenaire';
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
+import Swal from 'sweetalert2';
 
 definePageMeta({ layout: 'admin' });
+
+const config = useRuntimeConfig();
+const partenaireStore = usePartenaireStore();
 
 // Icons
 const IconClose = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('line', { x1: '18', y1: '6', x2: '6', y2: '18' }), h('line', { x1: '6', y1: '6', x2: '18', y2: '18' })])
 const IconImage = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('rect', { x: '3', y: '3', width: '18', height: '18', rx: '2', ry: '2' }), h('circle', { cx: '8.5', cy: '8.5', r: '1.5' }), h('polyline', { points: '21 15 16 10 5 21' })])
 
 const searchQuery = ref('');
-const loading = ref(false);
-const pageLoading = ref(true);
 
 const allColumns = ref([
   { field: 'logo', title: 'Logo', sort: false, width: '150px', headerClass: 'justify-center', cellClass: 'justify-center' },
@@ -203,25 +205,27 @@ const allColumns = ref([
   { field: 'actions', title: 'Actions', sort: false, width: '120px', headerClass: 'justify-center', cellClass: 'justify-center' },
 ]);
 
-// Dummy Data
-const partenaires = ref([
-  { id: 1, nom: 'Banque Mondiale', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/The_World_Bank_logo.svg/1024px-The_World_Bank_logo.svg.png' },
-  { id: 2, nom: 'Orabank', logo: 'https://upload.wikimedia.org/wikipedia/fr/0/07/Logo_Orabank.png' },
-  { id: 3, nom: 'BOAD', logo: 'https://upload.wikimedia.org/wikipedia/fr/0/0c/Logo_de_la_Banque_Ouest_Africaine_de_D%C3%A9veloppement.jpg' },
-]);
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
 
 // Modal & Form State
 const isAddModalOpen = ref(false);
 const isEditModalOpen = ref(false);
+const logoFile = ref<File | null>(null);
+const logoPreview = ref('');
 
 const form = ref({
-  id: null as number | null,
+  id: '',
   nom: '',
-  logo: ''
 });
 
 const resetForm = () => {
-  form.value = { id: null, nom: '', logo: '' };
+  form.value = { id: '', nom: '' };
+  logoFile.value = null;
+  logoPreview.value = '';
 };
 
 const openAddModal = () => {
@@ -230,52 +234,108 @@ const openAddModal = () => {
 };
 
 const openEditModal = (partenaire: any) => {
-  form.value = { ...partenaire };
+  form.value = { 
+    id: partenaire.id,
+    nom: partenaire.nom,
+  };
+  logoPreview.value = getImageUrl(partenaire.logo);
   isEditModalOpen.value = true;
 };
 
 const closeModals = () => {
   isAddModalOpen.value = false;
   isEditModalOpen.value = false;
+  resetForm();
 };
 
 const handleFileUpload = (e: Event) => {
   const target = e.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     const file = target.files[0];
-    form.value.logo = URL.createObjectURL(file);
+    logoFile.value = file;
+    logoPreview.value = URL.createObjectURL(file);
   }
 };
 
-const submitAdd = () => {
-  console.log('Ajout:', form.value);
-  partenaires.value.push({
-    id: Date.now(),
-    nom: form.value.nom,
-    logo: form.value.logo
+const submitAdd = async () => {
+  const formData = new FormData();
+  formData.append('nom', form.value.nom);
+  if (logoFile.value) {
+    formData.append('logo', logoFile.value);
+  }
+
+  try {
+    await partenaireStore.store(formData);
+    Swal.fire({
+      icon: 'success',
+      title: 'Partenaire ajouté',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    closeModals();
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible d\'ajouter le partenaire.', 'error');
+  }
+};
+
+const submitEdit = async () => {
+  const formData = new FormData();
+  formData.append('nom', form.value.nom);
+  if (logoFile.value) {
+    formData.append('logo', logoFile.value);
+  }
+
+  try {
+    await partenaireStore.update(form.value.id, formData);
+    Swal.fire({
+      icon: 'success',
+      title: 'Partenaire mis à jour',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    closeModals();
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de modifier le partenaire.', 'error');
+  }
+};
+
+const confirmDelete = async (partenaire: any) => {
+  const result = await Swal.fire({
+    title: 'Supprimer ce partenaire ?',
+    text: `Voulez-vous vraiment supprimer "${partenaire.nom}" ?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f43f5e',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+    customClass: {
+      popup: 'swal2-custom-popup',
+      confirmButton: 'swal2-custom-confirm',
+      cancelButton: 'swal2-custom-cancel'
+    }
   });
-  closeModals();
-};
 
-const submitEdit = () => {
-  console.log('Modification:', form.value);
-  const index = partenaires.value.findIndex(p => p.id === form.value.id);
-  if (index !== -1) {
-    partenaires.value[index] = { ...form.value } as any;
+  if (result.isConfirmed) {
+    try {
+      await partenaireStore.destroy(partenaire.id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Supprimé !',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: { popup: 'swal2-custom-popup' }
+      });
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de supprimer le partenaire.', 'error');
+    }
   }
-  closeModals();
 };
 
-const confirmDelete = (partenaire: any) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer le partenaire "${partenaire.nom}" ?`)) {
-    partenaires.value = partenaires.value.filter(p => p.id !== partenaire.id);
-  }
-};
-
-onMounted(() => {
-  setTimeout(() => {
-    pageLoading.value = false;
-  }, 400);
+onMounted(async () => {
+  await partenaireStore.fetch();
 });
 </script>
 

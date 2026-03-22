@@ -1,15 +1,17 @@
 <template>
   <div class="blogs-modifier-page">
-    <AdminBreadcrumb :items="[{ label: 'Blogs', to: '/admin/blogs' }, { label: 'Modifier un blog' }]" class="animate-reveal" />
+    <AdminBreadcrumb :items="[{ label: 'Blogs', link: '/admin/blogs' }, { label: 'Modifier un blog' }]" />
 
-    <div class="page-header animate-reveal reveal-delay-1">
+    <div class="page-header">
       <div class="header-text">
         <h1>Mettre à jour l'Article</h1>
         <p>Ajustez le contenu et les médias de cet article de blog.</p>
       </div>
     </div>
 
-    <div class="content-card animate-reveal reveal-delay-2">
+    <div v-if="loadingBlog" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+
+    <div v-else class="content-card">
       <form @submit.prevent="updateBlog" class="admin-form">
         <div class="form-grid">
           <!-- Colonne Principale -->
@@ -41,11 +43,6 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label>Date de publication</label>
-              <input type="date" class="focus-blue" v-model="form.date" required />
-            </div>
-
             <!-- Image de Couverture -->
             <div class="form-group mt-4">
               <label class="flex justify-between items-center">
@@ -53,15 +50,15 @@
                 <span class="text-[9px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Requis</span>
               </label>
               
-              <div class="image-upload-box cover edit-mode" :class="{ 'has-image': form.couverture }">
-                <div v-if="!form.couverture" class="upload-placeholder">
+              <div class="image-upload-box cover edit-mode" :class="{ 'has-image': form.couverturePreview }">
+                <div v-if="!form.couverturePreview" class="upload-placeholder">
                   <component :is="IconImage" class="upload-icon" />
                   <p>Glissez l'image de couverture</p>
                   <span class="upload-hint">1200 x 630px recommandé</span>
                 </div>
                 <div v-else class="preview-container">
-                  <img :src="form.couverture" class="image-preview" alt="Couverture" />
-                  <button type="button" class="btn-remove-img" @click.stop="form.couverture = ''" title="Retirer">
+                  <img :src="form.couverturePreview" class="image-preview" alt="Couverture" />
+                  <button type="button" class="btn-remove-img" @click.stop="removeCover" title="Retirer">
                     <component :is="IconClose" />
                   </button>
                 </div>
@@ -94,9 +91,9 @@
 
         <div class="form-actions border-top">
           <NuxtLink to="/admin/blogs" class="btn-cancel">Annuler</NuxtLink>
-          <button type="submit" class="btn-save btn-save-edit">
+          <button type="submit" class="btn-save btn-save-edit" :disabled="blogStore.loading">
              <component :is="IconSave" class="icon-sm" />
-             Sauvegarder les modifications
+             {{ blogStore.loading ? 'Enregistrement...' : 'Sauvegarder les modifications' }}
           </button>
         </div>
       </form>
@@ -106,13 +103,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted, h } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useBlogStore } from '~~/stores/blog'
+import Swal from 'sweetalert2'
 import 'quill/dist/quill.snow.css';
 
 definePageMeta({ layout: 'admin' })
 
 const route = useRoute()
-const blogId = route.params.id
+const router = useRouter()
+const blogStore = useBlogStore()
+const config = useRuntimeConfig()
+const blogId = route.params.id as string
+
+const loadingBlog = ref(true)
 
 // Icons
 const IconSave = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('path', { d: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z' }), h('polyline', { points: '17 21 17 13 7 13 7 21' }), h('polyline', { points: '7 3 7 8 15 8' })])
@@ -124,48 +128,64 @@ const form = ref({
   titre: '',
   categorie: '',
   contenu: '',
-  date: '',
-  couverture: '', 
-  galerie: [] as { file?: File, preview: string }[]
+  couvertureFile: null as File | null,
+  couverturePreview: '', 
+  galerie: [] as { file?: File, preview: string, id?: string }[]
 })
 
 const editorContainer = ref<HTMLElement | null>(null);
 let quillInstance: any = null;
 
+const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return `${config.public.storageBase}/${path}`;
+};
+
 onMounted(async () => {
-  console.log('Chargement de l\'article N°', blogId)
-  // Mock Data
-  form.value = {
-    titre: 'Renforcement infrastructurel et innovations écologiques',
-    categorie: 'Énergies Renouvelables',
-    contenu: 'Dans notre quête de développement durable, le renforcement...',
-    date: '2026-03-20',
-    couverture: 'https://images.unsplash.com/photo-1541888081622-3a27a36cb3a1?auto=format&fit=crop&q=80&w=800',
-    galerie: [
-      { preview: 'https://images.unsplash.com/photo-1509391366360-12009cb9f3ac?auto=format&fit=crop&q=80&w=800' }
-    ]
-  }
+  try {
+    const data = await blogStore.show(blogId)
+    const cover = data.images.find(img => img.is_couverture) || data.images[0]
+    const otherImages = data.images.filter(img => img.id !== cover?.id)
 
-  if (import.meta.client && editorContainer.value) {
-    const Quill = (await import('quill')).default;
-    quillInstance = new Quill(editorContainer.value, {
-      theme: 'snow',
-      placeholder: 'Rédigez le contenu complet de l\'article ici...',
-      modules: {
-        toolbar: [
-           [{ 'header': [1, 2, 3, false] }],
-           ['bold', 'italic', 'underline', 'strike'],
-           [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-           ['link', 'clean']
-        ]
-      }
-    });
+    form.value = {
+      titre: data.titre,
+      categorie: data.categorie,
+      contenu: data.contenu,
+      couvertureFile: null,
+      couverturePreview: cover ? getImageUrl(cover.path) : '',
+      galerie: otherImages.map(img => ({
+        preview: getImageUrl(img.path),
+        id: img.id
+      }))
+    }
 
-    quillInstance.root.innerHTML = form.value.contenu;
+    if (import.meta.client && editorContainer.value) {
+      const Quill = (await import('quill')).default;
+      quillInstance = new Quill(editorContainer.value, {
+        theme: 'snow',
+        placeholder: 'Rédigez le contenu complet de l\'article ici...',
+        modules: {
+          toolbar: [
+             [{ 'header': [1, 2, 3, false] }],
+             ['bold', 'italic', 'underline', 'strike'],
+             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+             ['link', 'clean']
+          ]
+        }
+      });
 
-    quillInstance.on('text-change', () => {
-       form.value.contenu = quillInstance.root.innerHTML;
-    });
+      quillInstance.root.innerHTML = form.value.contenu;
+
+      quillInstance.on('text-change', () => {
+         form.value.contenu = quillInstance.root.innerHTML;
+      });
+    }
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de charger les données de l\'article.', 'error')
+    router.push('/admin/blogs')
+  } finally {
+    loadingBlog.value = false
   }
 })
 
@@ -173,18 +193,28 @@ const handleCoverUpload = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files.length > 0) {
     const file = target.files[0]
-    form.value.couverture = URL.createObjectURL(file)
+    if (file) {
+      form.value.couvertureFile = file
+      form.value.couverturePreview = URL.createObjectURL(file)
+    }
   }
+}
+
+const removeCover = () => {
+  form.value.couvertureFile = null
+  form.value.couverturePreview = ''
 }
 
 const handleGalleryUpload = (e: Event) => {
   const target = e.target as HTMLInputElement
-  if (target.files) {
+  if (target.files && target.files.length > 0) {
     Array.from(target.files).forEach(file => {
-      form.value.galerie.push({
-        file: file,
-        preview: URL.createObjectURL(file)
-      })
+      if (file) {
+        form.value.galerie.push({
+          file: file,
+          preview: URL.createObjectURL(file)
+        })
+      }
     })
   }
 }
@@ -193,10 +223,38 @@ const removeGalleryImg = (index: number) => {
   form.value.galerie.splice(index, 1);
 }
 
-const updateBlog = () => {
-  console.log('Article modifié :', form.value)
-  alert('Les modifications ont été enregistrées avec succès !')
-  // Ici logiquement => navigateTo('/admin/blogs')
+const updateBlog = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('titre', form.value.titre);
+    formData.append('categorie', form.value.categorie);
+    formData.append('contenu', form.value.contenu);
+    
+    // Si nouvelle couverture
+    if (form.value.couvertureFile) {
+      formData.append('images[]', form.value.couvertureFile);
+    }
+    
+    // Nouvelles images de galerie
+    form.value.galerie.forEach(item => {
+      if (item.file) {
+        formData.append('images[]', item.file);
+      }
+    });
+
+    await blogStore.update(blogId, formData);
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Article mis à jour',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: { popup: 'swal2-custom-popup' }
+    });
+    router.push('/admin/blogs');
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de modifier l\'article.', 'error');
+  }
 }
 </script>
 

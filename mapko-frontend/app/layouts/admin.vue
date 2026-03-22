@@ -17,24 +17,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { useMessageStore } from '~~/stores/message'
 
 const isSidebarOpen = ref(false)
 const isCollapsed = ref(false)
 const route = useRoute()
+const messageStore = useMessageStore()
 
 onMounted(() => {
-  // Global Scroll Reveal for Admin
-  const revealElements = document.querySelectorAll('.animate-reveal')
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-active')
-      }
-    })
-  }, { threshold: 0.1 })
+  // Lancer le polling des messages pour le badge dynamique
+  messageStore.startPolling()
+})
 
-  revealElements.forEach(el => observer.observe(el))
+onUnmounted(() => {
+  messageStore.stopPolling()
 })
 
 watch(() => route.path, () => {

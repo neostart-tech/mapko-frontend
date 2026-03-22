@@ -62,31 +62,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useAuthStore } from "~~/stores/auth";
 
 definePageMeta({
   layout: false
 })
 
+const auth = useAuthStore()
 const credentials = ref({ email: '', password: '' })
 const showPassword = ref(false)
-const rememberMe = ref(false)
 const isLoading = ref(false)
 const errorMsg = ref('')
 
-const handleLogin = () => {
-  isLoading.value = true
+onMounted(() => {
+    auth.init();
+    if (auth.isLogged) {
+        navigateTo("/admin");
+    }
+});
+
+const handleLogin = async () => {
   errorMsg.value = ''
   
-  // Simulation simple
-  setTimeout(() => {
-    if (credentials.value.email === 'admin@mapko-partners.com' && credentials.value.password === 'admin') {
-      navigateTo('/admin/dashboard')
-    } else {
-      isLoading.value = false
-      errorMsg.value = "Identifiants invalides. Veuillez réessayer."
-    }
-  }, 1000)
+  let valid = true;
+  if (!credentials.value.email.trim()) {
+      errorMsg.value = "L'adresse email est requise.";
+      valid = false;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.value.email)) {
+      errorMsg.value = "Adresse email invalide.";
+      valid = false;
+  } else if (!credentials.value.password) {
+      errorMsg.value = "Le mot de passe est requis.";
+      valid = false;
+  }
+  
+  if (!valid) return;
+
+  isLoading.value = true
+  
+  try {
+      await auth.login(credentials.value.email, credentials.value.password);
+
+      const toast = useToast();
+      toast.success({ message: "Heureux de vous revoir !" });
+      await navigateTo("/admin");
+  } catch (e: any) {
+      errorMsg.value = e?.message ?? "Identifiants invalides. Veuillez réessayer.";
+  } finally {
+      isLoading.value = false;
+  }
 }
 
 useHead({

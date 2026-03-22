@@ -22,16 +22,43 @@
 
       <div class="user-profile">
         <div class="user-info">
-          <p class="user-name">Admin Mapko</p>
-          <p class="user-role">Super Admin</p>
+          <p class="user-name">{{ fullName }}</p>
+          <p class="user-role">{{ roleName }}</p>
         </div>
-        <div class="user-avatar">
-          <img src="https://ui-avatars.com/api/?name=Admin+Mapko&background=7A2E8E&color=fff" alt="Avatar" />
+        <div class="user-avatar initials-avatar">
+          <span>{{ initials }}</span>
         </div>
       </div>
     </div>
   </header>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useAuthStore } from '~~/stores/auth'
+
+const auth = useAuthStore()
+
+const fullName = computed(() => {
+  if (!auth.user) return 'Invité'
+  return `${auth.user.prenom} ${auth.user.nom}`
+})
+
+const roleName = computed(() => {
+  if (!auth.user) return 'N/A'
+  
+  // Formatage du rôle (ex: super_admin -> Super Admin)
+  const role = auth.user.role || 'Admin'
+  return role.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+})
+
+const initials = computed(() => {
+  if (!auth.user) return '?'
+  const p = auth.user.prenom?.charAt(0) || ''
+  const n = auth.user.nom?.charAt(0) || ''
+  return (p + n).toUpperCase()
+})
+</script>
 
 <style scoped>
 .admin-topbar {
@@ -183,6 +210,17 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.initials-avatar {
+  background: var(--color-violet, #7A2E8E);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
 
 .desktop-only { display: block; }

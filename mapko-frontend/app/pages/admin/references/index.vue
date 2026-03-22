@@ -4,7 +4,7 @@
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Références' }]" />
 
     <!-- Skeleton Loader -->
-    <div v-if="pageLoading" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+    <div v-if="referenceStore.loading && referenceStore.references.length === 0" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
 
     <div v-else class="content-wrapper">
       <!-- HEADER CARD -->
@@ -19,7 +19,7 @@
           <div class="flex items-center gap-3">
              <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-bold">{{ references.length }} Projets</span>
+                <span class="text-xs font-bold">{{ referenceStore.references.length }} Projets</span>
              </div>
              <NuxtLink to="/admin/references/ajouter" class="btn-add">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,7 +46,7 @@
 
           <select v-model="filterStatus" class="px-4 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all cursor-pointer">
               <option value="all">Tous les statuts</option>
-              <option value="en-cours">En cours</option>
+              <option value="en_cours">En cours</option>
               <option value="termine">Terminé</option>
           </select>
 
@@ -88,7 +88,7 @@
             :columns="visibleColumns"
             :search="searchQuery"
             :sortable="true"
-            :loading="loading"
+            :loading="referenceStore.loading"
             skin="bh-table-hover bh-table-compact"
             class="custom-datatable"
             :pageSize="10"
@@ -99,7 +99,7 @@
             <!-- Titre Column -->
             <template #titre="data">
                <span class="text-sm font-bold text-black">{{ data.value.titre }}</span>
-               <div class="text-[10px] text-gray-400 mt-1 font-semibold uppercase">{{ data.value.secteur_nom }}</div>
+               <div v-if="data.value.secteur" class="text-[10px] text-gray-400 mt-1 font-semibold uppercase">{{ data.value.secteur.titre }}</div>
             </template>
 
             <!-- Description -->
@@ -162,14 +162,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useReferenceStore } from '~~/stores/reference';
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
+import Swal from 'sweetalert2';
 
 definePageMeta({ layout: 'admin' });
 
+const referenceStore = useReferenceStore();
 const searchQuery = ref('');
-const loading = ref(false);
-const pageLoading = ref(true);
 const filterStatus = ref('all');
 
 const isDropdownOpen = ref(false);
@@ -195,15 +196,8 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 }
 
-// Dummy Data
-const references = ref([
-  { id: 1, titre: 'Construction Port Autonome', description: 'Phase 1 de l\'extension du port autonome de Lomé.', annee_debut: 2021, annee_fin: 2023, montant: '12M FCFA', pays: 'Togo', statut: 'termine', id_secteur: 1, secteur_nom: 'Bâtiment et Travaux Publics' },
-  { id: 2, titre: 'Projet Solaire Villageois', description: 'Implémentation de 500 panneaux dans 10 villages.', annee_debut: 2024, annee_fin: '', montant: '8.5M FCFA', pays: 'Sénégal', statut: 'en-cours', id_secteur: 2, secteur_nom: 'Énergies Renouvelables' },
-  { id: 3, titre: 'Logistique Transport Routier', description: 'Chaîne logistique entre Abidjan et Ouagadougou.', annee_debut: 2020, annee_fin: 2025, montant: '45M FCFA', pays: 'Côte d\'Ivoire', statut: 'en-cours', id_secteur: 3, secteur_nom: 'Logistique & Transport' },
-]);
-
 const filteredReferences = computed(() => {
-  let data = references.value;
+  let data = referenceStore.references;
   if (filterStatus.value !== 'all') {
     data = data.filter(r => r.statut === filterStatus.value);
   }
@@ -215,17 +209,42 @@ const resetFilters = () => {
   filterStatus.value = 'all';
 };
 
-const confirmDelete = (refItem: any) => {
-  if (confirm(`Êtes-vous sûr de vouloir supprimer la référence "${refItem.titre}" ?`)) {
-    references.value = references.value.filter(r => r.id !== refItem.id);
+const confirmDelete = async (refItem: any) => {
+  const result = await Swal.fire({
+    title: 'Supprimer cette référence ?',
+    text: `Voulez-vous vraiment supprimer "${refItem.titre}" ?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f43f5e',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+    customClass: {
+      popup: 'swal2-custom-popup',
+      confirmButton: 'swal2-custom-confirm',
+      cancelButton: 'swal2-custom-cancel'
+    }
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await referenceStore.destroy(refItem.id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Supprimé !',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: { popup: 'swal2-custom-popup' }
+      });
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de supprimer la référence.', 'error');
+    }
   }
 };
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
-  setTimeout(() => {
-    pageLoading.value = false;
-  }, 500);
+  referenceStore.fetch();
 });
 
 onUnmounted(() => {
