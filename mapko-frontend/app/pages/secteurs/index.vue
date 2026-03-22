@@ -21,10 +21,9 @@
     <section class="secteurs-grid-section">
       <div class="secteurs-grid-section__container">
         <div class="secteurs-grid" ref="secteursSection" :class="{ 'is-visible': isVisible }">
-          <NuxtLink 
+          <div 
             v-for="(sector, index) in sectors" 
             :key="sector.slug"
-            :to="`/secteurs/${sector.slug}`"
             class="sector-card animate-reveal"
             :style="{ 'animation-delay': (index * 0.1) + 's' }"
           >
@@ -36,11 +35,8 @@
               <div class="sector-card__icon" v-html="sector.icon" />
               <h3 class="sector-card__title">{{ sector.title }}</h3>
               <p class="sector-card__tagline">{{ sector.tagline }}</p>
-              <div class="sector-card__link">
-                Découvrir <span class="arrow">→</span>
-              </div>
             </div>
-          </NuxtLink>
+          </div>
         </div>
       </div>
     </section>
@@ -220,19 +216,6 @@ useHead({
   transition: all 0.4s ease;
 }
 
-.sector-card__link {
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-violet-light);
-  font-size: 0.9rem;
-}
-
-.sector-card__link .arrow {
-  transition: transform 0.3s ease;
-}
-
 /* ── HOVER ── */
 .sector-card:hover {
   transform: translateY(-10px);
@@ -250,10 +233,6 @@ useHead({
 
 .sector-card:hover .sector-card__icon {
   transform: scale(1.1) rotate(-5deg);
-}
-
-.sector-card:hover .sector-card__link .arrow {
-  transform: translateX(5px);
 }
 
 /* ── ANIMATIONS ── */

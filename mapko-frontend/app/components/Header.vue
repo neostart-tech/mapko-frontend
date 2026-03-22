@@ -78,6 +78,7 @@ const navLinks = [
   { label: 'À propos',   to: '/a-propos' },
   { label: 'Secteurs',   to: '/secteurs' },
   { label: 'Références', to: '/references' },
+  { label: 'Blogs',      to: '/blogs' },
   { label: 'Contact',    to: '/contact' },
 ]
 

@@ -69,18 +69,40 @@
         <div class="sectors__list">
           <div v-for="(sector, idx) in sectors" :key="idx" class="sector-line animate-reveal" :style="{ 'animation-delay': (idx * 0.05) + 's' }">
             <div class="sector-line__icon">
-              <!-- Utilisation d'icônes SVG simplifiées -->
-              <div v-if="sector.icon === 'agro'" class="s-icon">🌾</div>
-              <div v-if="sector.icon === 'bank'" class="s-icon">🏦</div>
-              <div v-if="sector.icon === 'energy'" class="s-icon">⚡</div>
-              <div v-if="sector.icon === 'edu'" class="s-icon">📚</div>
-              <div v-if="sector.icon === 'industry'" class="s-icon">🏭</div>
-              <div v-if="sector.icon === 'infra'" class="s-icon">🏗️</div>
-              <div v-if="sector.icon === 'digital'" class="s-icon">💻</div>
-              <div v-if="sector.icon === 'health'" class="s-icon">⚕️</div>
-              <div v-if="sector.icon === 'sport'" class="s-icon">🏅</div>
-              <div v-if="sector.icon === 'tech'" class="s-icon">⚙️</div>
-              <div v-if="sector.icon === 'logistics'" class="s-icon">🚚</div>
+              <!-- Utilisation d'icônes SVG (Lucide / Feather style) -->
+              <div v-if="sector.icon === 'agro'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><path d="M12 22c4-4 8-9 8-14a8 8 0 1 0-16 0c0 5 4 10 8 14z"/><path d="M12 22V12"/></svg>
+              </div>
+              <div v-if="sector.icon === 'bank'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M5 6l7-3 7 3"></path><line x1="4" y1="10" x2="4" y2="21"></line><line x1="20" y1="10" x2="20" y2="21"></line><line x1="8" y1="14" x2="8" y2="17"></line><line x1="12" y1="14" x2="12" y2="17"></line><line x1="16" y1="14" x2="16" y2="17"></line></svg>
+              </div>
+              <div v-if="sector.icon === 'energy'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div v-if="sector.icon === 'edu'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              </div>
+              <div v-if="sector.icon === 'industry'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><path d="M22 22H2"/><path d="M22 2v20"/><path d="M2 22V5l9 4v13"/><path d="M11 22V9l9 4v9"/></svg>
+              </div>
+              <div v-if="sector.icon === 'infra'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
+              </div>
+              <div v-if="sector.icon === 'digital'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line><line x1="12" y1="17" x2="12" y2="20"></line></svg>
+              </div>
+              <div v-if="sector.icon === 'health'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div v-if="sector.icon === 'sport'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M17 4h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2"/><path d="M7 4H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2"/><path d="M7 4h10v6a5 5 0 0 1-10 0V4z"/></svg>
+              </div>
+              <div v-if="sector.icon === 'tech'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </div>
+              <div v-if="sector.icon === 'logistics'" class="s-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="s-icon-svg"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </div>
             </div>
             <span class="sector-line__label">{{ sector.label }}</span>
           </div>
@@ -910,5 +932,10 @@ const reasons = [
   to {
     opacity: 1;
   }
+}
+/* Style SVG pour qu'il soit bien centré dans s-icon et de taille relative */
+.s-icon-svg {
+  width: 80%;
+  height: 80%;
 }
 </style>

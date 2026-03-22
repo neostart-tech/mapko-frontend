@@ -59,7 +59,7 @@
 
                 <div class="form-group">
                   <label for="message">Message</label>
-                  <textarea id="message" v-model="form.message" rows="5" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+                  <textarea id="message" v-model="form.message" rows="7" placeholder="Comment pouvons-nous vous aider ?" required></textarea>
                 </div>
 
                 <button type="submit" class="btn-submit" :disabled="isSubmitting">
