@@ -3,7 +3,8 @@
     <!-- HERO -->
     <section class="blogs-hero">
       <div class="blogs-hero__bg">
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600" alt="Mapko Blogs" class="blogs-hero__img" />
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1600"
+          alt="Mapko Blogs" class="blogs-hero__img" />
         <div class="blogs-hero__overlay" />
       </div>
       <div class="blogs-hero__container">
@@ -18,34 +19,34 @@
     <!-- CONTENT LAYOUT -->
     <section class="blogs-section">
       <div class="blogs-container">
-        
+
         <!-- MAIN CONTENT -->
         <main class="blogs-main">
-          
+
           <!-- Loader initial / infini si vide -->
           <AdminLoader :visible="blogStore.blogs.length === 0" inline />
 
           <!-- Message si recherche vide mais store non vide -->
-          <div v-if="blogStore.blogs.length > 0 && paginatedBlogs.length === 0" class="no-results shadow-card reveal">
-            <p>Aucun article trouvé pour "{{ searchQuery }}".</p>
-            <button @click="searchQuery = ''" class="btn-reset">Réinitialiser la recherche</button>
+          <div v-if="blogStore.blogs.length > 0 && paginatedBlogs.length === 0" class="no-results shadow-card">
+            <p>Aucun résultat ne correspond à vos recherches.</p>
+            <button @click="searchQuery = ''" class="btn-reset">Réinitialiser les filtres</button>
           </div>
 
           <div class="blogs-list">
-            <NuxtLink 
-              v-for="(blog, index) in paginatedBlogs" 
-              :key="blog.id" 
-              :to="`/blogs/${blog.id}`"
-              class="blog-card shadow-card"
-              :style="{ 'transition-delay': (index * 0.1) + 's' }"
-            >
+            <NuxtLink v-for="(blog, index) in paginatedBlogs" :key="blog.id" :to="`/blogs/${blog.id}`"
+              class="blog-card shadow-card" :style="{ 'transition-delay': (index * 0.1) + 's' }">
               <div class="blog-card__image-container">
-                <img :src="getImageUrl(blog.images?.find(img => img.is_couverture)?.path || blog.images?.[0]?.path)" :alt="blog.titre" class="blog-card__img" />
+                <img :src="getImageUrl(blog.images?.find(img => img.is_couverture)?.path || blog.images?.[0]?.path)"
+                  :alt="blog.titre" class="blog-card__img" />
                 <span class="blog-card__category">{{ blog.categorie }}</span>
               </div>
               <div class="blog-card__content">
                 <div class="blog-card__meta">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="meta-icon" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
                   <span>{{ formatDate(blog.created_at) }}</span>
                 </div>
                 <h2 class="blog-card__title">{{ blog.titre }}</h2>
@@ -60,19 +61,20 @@
           <!-- PAGINATION -->
           <div class="pagination" v-if="totalPages > 1">
             <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
             </button>
-            <button 
-              v-for="page in totalPages" 
-              :key="page"
-              class="page-btn"
-              :class="{ 'is-active': currentPage === page }"
-              @click="currentPage = page"
-            >
+            <button v-for="page in totalPages" :key="page" class="page-btn"
+              :class="{ 'is-active': currentPage === page }" @click="currentPage = page">
               {{ page }}
             </button>
             <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </button>
           </div>
 
@@ -83,7 +85,11 @@
           <div class="sidebar-widget search-widget shadow-card">
             <h3 class="widget-title">Rechercher</h3>
             <div class="search-input-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
               <input type="text" v-model="searchQuery" placeholder="Mot-clé ou catégorie..." />
             </div>
           </div>
@@ -91,18 +97,14 @@
           <div class="sidebar-widget categories-widget shadow-card">
             <h3 class="widget-title">Catégories</h3>
             <ul class="category-list">
-              <li 
-                v-for="cat in categoriesCount" 
-                :key="cat.name"
-                class="category-item"
-                @click="filterByCategory(cat.name)"
-                :class="{ 'is-active': searchQuery === cat.name }"
-              >
+              <li v-for="cat in categoriesCount" :key="cat.name" class="category-item"
+                @click="filterByCategory(cat.name)" :class="{ 'is-active': searchQuery === cat.name }">
                 <span class="category-name">{{ cat.name }}</span>
                 <span class="category-count">({{ cat.count }})</span>
               </li>
-              <li class="category-item text-xs mt-2 text-violet-600 font-bold justify-center" v-if="searchQuery" @click="searchQuery = ''">
-                 Réinitialiser le filtre
+              <li class="category-item text-xs mt-2 text-violet-600 font-bold justify-center" v-if="searchQuery"
+                @click="searchQuery = ''">
+                Réinitialiser le filtre
               </li>
             </ul>
           </div>
@@ -144,7 +146,7 @@ const getImageUrl = (path?: string) => {
 onMounted(async () => {
   await blogStore.fetch()
   await secteurStore.fetch()
-  
+
   // Si on vient d'une recherche (ex: depuis le détail blog)
   if (route.query.q) {
     searchQuery.value = route.query.q as string
@@ -167,8 +169,8 @@ watch(() => route.query.q, (newQ) => {
 const filteredBlogs = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
   if (!query) return blogStore.blogs
-  return blogStore.blogs.filter(b => 
-    b.titre.toLowerCase().includes(query) || 
+  return blogStore.blogs.filter(b =>
+    b.titre.toLowerCase().includes(query) ||
     b.categorie.toLowerCase().includes(query)
   )
 })
@@ -183,7 +185,7 @@ const paginatedBlogs = computed(() => {
 // Categories dynamic list based on Secteurs
 const categoriesCount = computed(() => {
   const sectors = [...secteurStore.secteurs].sort((a, b) => a.titre.localeCompare(b.titre))
-  
+
   const list = sectors.map(s => {
     const count = blogStore.blogs.filter(b => b.categorie === s.titre).length
     return { name: s.titre, count }
@@ -255,7 +257,8 @@ const generateExcerpt = (htmlString: string) => {
   height: 100%;
   object-fit: cover;
   filter: blur(3px) brightness(0.4);
-  transform: scale(1.05); /* fix blur edges */
+  transform: scale(1.05);
+  /* fix blur edges */
 }
 
 .blogs-hero__overlay {
@@ -287,7 +290,8 @@ const generateExcerpt = (htmlString: string) => {
 .blogs-section {
   position: relative;
   z-index: 2;
-  margin-top: -3rem; /* overlap over hero */
+  margin-top: -3rem;
+  /* overlap over hero */
   padding-bottom: 6rem;
 }
 
@@ -302,7 +306,8 @@ const generateExcerpt = (htmlString: string) => {
 
 @media (min-width: 960px) {
   .blogs-container {
-    flex-direction: row; /* Main Left, Sidebar Right */
+    flex-direction: row;
+    /* Main Left, Sidebar Right */
     align-items: flex-start;
   }
 }
