@@ -11,7 +11,7 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-bold text-black font-['Outfit']">Gestion des Messages</h2>
+            <h2 class="text-xl font-semibold text-black">Gestion des Messages</h2>
             <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
               Flux des demandes de contact
             </p>
@@ -20,7 +20,7 @@
             <div
               class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
               <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-              <span class="text-xs font-bold">{{ rows.length }} Messages globaux</span>
+              <span class="text-xs font-semibold">{{ rows.length }} Messages globaux</span>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@
       <div v-if="selectedMessage" class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="selectedMessage = null"></div>
         <div
-          class="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-scale">
+          class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-scale">
           <!-- Modal Header -->
           <div class="flex items-center justify-between px-8 py-6 border-b border-gray-50">
             <div class="flex items-center gap-4">
@@ -168,7 +168,7 @@
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-bold text-black">Détails du Message</h3>
+                <h3 class="text-lg font-semibold text-black">Détails du Message</h3>
                 <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">Contact Client</p>
               </div>
             </div>
@@ -211,18 +211,28 @@
                 <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{{ selectedMessage.contenu }}</p>
               </div>
             </div>
+
+            <!-- ZONE DE RÉPONSE -->
+            <div class="space-y-3 pt-2 border-t border-gray-100">
+              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rédiger une réponse</p>
+              <div class="reply-editor-wrapper rounded-2xl overflow-hidden border border-gray-200">
+                <div ref="quillReplyRef" class="reply-quill-editor"></div>
+              </div>
+            </div>
           </div>
 
           <!-- Modal Footer -->
-          <div class="px-8 py-6 border-t border-gray-50 bg-gray-50/50 flex justify-end gap-3">
-            <button @click="sendEmail(selectedMessage)"
-              class="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold rounded-xl transition-all shadow-md active:scale-95">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <div class="px-8 py-5 border-t border-gray-50 bg-gray-50/50 flex justify-end gap-3">
+            <button @click="sendReply(selectedMessage)"
+              :disabled="isSendingReply"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl transition-all shadow-md active:scale-95">
+              <svg v-if="!isSendingReply" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-              Répondre par Mail
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {{ isSendingReply ? 'Envoi...' : 'Envoyer la réponse' }}
             </button>
             <button @click="selectedMessage = null"
               class="px-6 py-3 text-sm font-bold text-gray-400 hover:text-black hover:bg-white rounded-xl transition-all">
@@ -236,8 +246,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useMessageStore } from '~~/stores/message';
+import { useNuxtApp } from '#app';
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
 import Swal from 'sweetalert2';
@@ -247,10 +258,14 @@ definePageMeta({
 });
 
 const messageStore = useMessageStore();
+const { $api } = useNuxtApp();
 
 const search = ref('');
 const filterStatus = ref('all');
 const selectedMessage = ref<any>(null);
+const quillReplyRef = ref<HTMLElement | null>(null);
+const quillInstance = ref<any>(null);
+const isSendingReply = ref(false);
 
 const isDropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
@@ -295,9 +310,67 @@ const resetFilters = () => {
 
 const openMessage = async (msg: any) => {
   selectedMessage.value = { ...msg };
-  // L'action show du store marque déjà comme lu en DB si nécessaire
   await messageStore.show(msg.id);
+  // Init Quill après le rendu du modal
+  await nextTick()
+  await nextTick()
+  if (quillReplyRef.value && !quillInstance.value) {
+    const Quill = (await import('quill')).default
+    await import('quill/dist/quill.snow.css')
+    quillInstance.value = new Quill(quillReplyRef.value, {
+      theme: 'snow',
+      placeholder: `Bonjour ${msg.expediteur},\n\nSuite à votre message...`,
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          [{ align: [] }],
+          ['link'],
+          ['clean']
+        ]
+      }
+    })
+  } else if (quillInstance.value) {
+    // Réinitialise le contenu pour le nouveau message
+    quillInstance.value.setContents([])
+  }
 };
+
+const sendReply = async (msg: any) => {
+  if (!quillInstance.value) return;
+  const html = quillInstance.value.root.innerHTML;
+  const text = quillInstance.value.getText().trim();
+  if (!text) {
+    Swal.fire({ title: 'Message vide', text: 'Veuillez rédiger votre réponse avant d\'envoyer.', icon: 'warning', timer: 2000, showConfirmButton: false });
+    return;
+  }
+  isSendingReply.value = true;
+  try {
+    await $api('/messages/reply', {
+      method: 'POST',
+      body: {
+        to: msg.email,
+        subject: `RE: ${msg.objet}`,
+        content: html,
+        message_id: msg.id
+      }
+    });
+    quillInstance.value.setContents([]);
+    selectedMessage.value = null;
+    Swal.fire({ title: 'Réponse envoyée !', icon: 'success', timer: 2000, showConfirmButton: false, customClass: { popup: 'swal2-custom-popup' } });
+  } catch (e) {
+    Swal.fire('Erreur', 'L\'envoi de la réponse a échoué. Vérifiez la configuration du serveur mail.', 'error');
+  } finally {
+    isSendingReply.value = false;
+  }
+};
+
+// Destroy Quill quand on ferme le modal
+watch(selectedMessage, (val) => {
+  if (!val && quillInstance.value) {
+    quillInstance.value = null;
+  }
+});
 
 const sendEmail = (msg: any) => {
   const subject = encodeURIComponent(`RE: ${msg.objet}`);

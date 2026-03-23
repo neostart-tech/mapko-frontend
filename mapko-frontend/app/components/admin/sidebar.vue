@@ -38,6 +38,26 @@
           </div>
           <span v-if="!isCollapsed" class="nav-label">Paramètres</span>
         </NuxtLink>
+
+        <!-- Gestion des Admins (Superadmin uniquement) -->
+        <NuxtLink
+          v-if="auth.user?.role === 'superadmin'"
+          to="/admin/admins"
+          class="nav-link superadmin-link"
+          active-class="is-active"
+          title="Administrateurs"
+        >
+          <div class="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <span v-if="!isCollapsed" class="nav-label">Administrateurs</span>
+          <span v-if="!isCollapsed" class="superadmin-tag">Super</span>
+        </NuxtLink>
       </div>
 
       <div class="nav-section">
@@ -205,7 +225,7 @@ const logout = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 1.2rem;
 }
 
@@ -304,7 +324,7 @@ const logout = async () => {
   font-size: 0.7rem;
   padding: 0.1rem 0.4rem;
   border-radius: 6px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 /* Dropdown */
@@ -345,7 +365,25 @@ const logout = async () => {
 .dropdown-link.is-sub-active {
   color: var(--color-violet);
   background: #fdf4ff;
-  font-weight: 700;
+  font-weight: 600;
+}
+
+/* Superadmin link */
+.superadmin-link {
+  background: rgba(122,46,142,0.05);
+  border: 1px dashed rgba(122,46,142,0.2);
+}
+
+.superadmin-tag {
+  margin-left: auto;
+  background: var(--color-blue);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .sidebar-footer {
@@ -368,7 +406,7 @@ const logout = async () => {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.2s ease;
 }
@@ -403,27 +441,27 @@ const logout = async () => {
 /* Custom SweetAlert Styles - Global needed for Swal */
 .swal2-custom-popup {
   border-radius: 1.5rem !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Outfit', sans-serif !important;
   padding: 1rem !important;
 }
 
 .swal2-custom-title {
   font-size: 1.25rem !important;
-  font-weight: 800 !important;
+  font-weight: 600 !important;
   color: #1a202c !important;
 }
 
 .swal2-custom-confirm {
   border-radius: 0.75rem !important;
   padding: 0.75rem 2rem !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   font-size: 0.9rem !important;
 }
 
 .swal2-custom-cancel {
   border-radius: 0.75rem !important;
   padding: 0.75rem 2rem !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   font-size: 0.9rem !important;
 }
 

@@ -65,6 +65,8 @@ watch(() => route.path, () => {
     min-height: 100vh;
     background: #f8fafc;
     display: flex;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
 }
 
 .admin-main {

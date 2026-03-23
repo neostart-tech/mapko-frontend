@@ -7,9 +7,9 @@
         <div class="blogs-hero__overlay" />
       </div>
       <div class="blogs-hero__container">
-        <h1 class="blogs-hero__eyebrow reveal">Nos Blogs</h1>
-        <h2 class="blogs-hero__title reveal delay-100">Actualités & Analyses</h2>
-        <p class="blogs-hero__subtitle reveal delay-200">
+        <h1 class="blogs-hero__eyebrow">Nos Blogs</h1>
+        <h2 class="blogs-hero__title">Actualités & Analyses</h2>
+        <p class="blogs-hero__subtitle">
           Découvrez nos connaissances, nos réflexions et les dernières actualités expertes de l'industrie.
         </p>
       </div>
@@ -36,7 +36,7 @@
               v-for="(blog, index) in paginatedBlogs" 
               :key="blog.id" 
               :to="`/blogs/${blog.id}`"
-              class="blog-card shadow-card reveal"
+              class="blog-card shadow-card"
               :style="{ 'transition-delay': (index * 0.1) + 's' }"
             >
               <div class="blog-card__image-container">
@@ -80,7 +80,7 @@
 
         <!-- SIDEBAR -->
         <aside class="blogs-sidebar">
-          <div class="sidebar-widget search-widget shadow-card reveal">
+          <div class="sidebar-widget search-widget shadow-card">
             <h3 class="widget-title">Rechercher</h3>
             <div class="search-input-wrap">
               <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -88,7 +88,7 @@
             </div>
           </div>
 
-          <div class="sidebar-widget categories-widget shadow-card reveal delay-100">
+          <div class="sidebar-widget categories-widget shadow-card">
             <h3 class="widget-title">Catégories</h3>
             <ul class="category-list">
               <li 

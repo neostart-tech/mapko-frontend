@@ -8,16 +8,16 @@
         <div class="ref-hero__overlay" />
       </div>
       <div class="ref-hero__container">
-        <h1 class="ref-hero__eyebrow reveal">Nos Références</h1>
-        <h2 class="ref-hero__title reveal delay-100">
+        <h1 class="ref-hero__eyebrow">Nos Références</h1>
+        <h2 class="ref-hero__title">
           Des projets structurants pour l'avenir de l'Afrique
         </h2>
-        <p class="ref-hero__subtitle reveal delay-200">
+        <p class="ref-hero__subtitle">
           Nos références témoignent de notre expertise et de la confiance que nous accordent nos partenaires publics, privés et institutionnels.
         </p>
 
         <!-- DOMAINES intégrés au Hero -->
-        <div class="ref-hero__domains domains-wrapper reveal delay-300">
+        <div class="ref-hero__domains domains-wrapper">
           <span v-for="domain in domains" :key="domain" class="domain-badge">
             <span class="domain-badge__icon" />
             {{ domain }}
@@ -36,8 +36,7 @@
           <div 
             v-for="(project, index) in referenceStore.references" 
             :key="project.id"
-            class="project-card reveal"
-            :style="{ 'transition-delay': (index * 0.1) + 's' }"
+            class="project-card"
           >
             <div class="project-card__header">
               <span class="project-card__category" v-if="project.secteur">{{ project.secteur.titre }}</span>
@@ -79,18 +78,50 @@
         <!-- Loader spécifique pour les partenaires -->
         <AdminLoader :visible="partenaireStore.partenaires.length === 0" inline />
 
-        <div class="logos-track" v-if="partenaireStore.partenaires.length > 0">
-          <!-- Premier set -->
-          <div v-for="partenaire in partenaireStore.partenaires" :key="'a-'+partenaire.id" class="logo-box" :title="partenaire.nom">
-             <img v-if="partenaire.logo" :src="getImageUrl(partenaire.logo)" :alt="partenaire.nom" class="carousel-img" />
-             <div v-else class="logo-placeholder">{{ partenaire.nom }}</div>
+        <template v-if="partenaireStore.partenaires.length > 0">
+          <!-- Ligne 1 : droite → gauche -->
+          <div class="logos-row">
+            <div class="logos-track">
+              <div v-for="p in row1" :key="'1a-'+p.id" class="logo-box" :title="p.nom">
+                <img v-if="p.logo" :src="getImageUrl(p.logo)" :alt="p.nom" class="carousel-img" />
+                <div v-else class="logo-placeholder">{{ p.nom }}</div>
+              </div>
+              <!-- Duplication pour boucle infinie -->
+              <div v-for="p in row1" :key="'1b-'+p.id" class="logo-box" :title="p.nom">
+                <img v-if="p.logo" :src="getImageUrl(p.logo)" :alt="p.nom" class="carousel-img" />
+                <div v-else class="logo-placeholder">{{ p.nom }}</div>
+              </div>
+            </div>
           </div>
-          <!-- Second set pour boucle infinie -->
-          <div v-for="partenaire in partenaireStore.partenaires" :key="'b-'+partenaire.id" class="logo-box" :title="partenaire.nom">
-             <img v-if="partenaire.logo" :src="getImageUrl(partenaire.logo)" :alt="partenaire.nom" class="carousel-img" />
-             <div v-else class="logo-placeholder">{{ partenaire.nom }}</div>
+
+          <!-- Ligne 2 : gauche → droite -->
+          <div class="logos-row">
+            <div class="logos-track logos-track--reverse">
+              <div v-for="p in row2" :key="'2a-'+p.id" class="logo-box" :title="p.nom">
+                <img v-if="p.logo" :src="getImageUrl(p.logo)" :alt="p.nom" class="carousel-img" />
+                <div v-else class="logo-placeholder">{{ p.nom }}</div>
+              </div>
+              <div v-for="p in row2" :key="'2b-'+p.id" class="logo-box" :title="p.nom">
+                <img v-if="p.logo" :src="getImageUrl(p.logo)" :alt="p.nom" class="carousel-img" />
+                <div v-else class="logo-placeholder">{{ p.nom }}</div>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- Ligne 3 : droite → gauche -->
+          <div class="logos-row">
+            <div class="logos-track">
+              <div v-for="p in row3" :key="'3a-'+p.id" class="logo-box" :title="p.nom">
+                <img v-if="p.logo" :src="getImageUrl(p.logo)" :alt="p.nom" class="carousel-img" />
+                <div v-else class="logo-placeholder">{{ p.nom }}</div>
+              </div>
+              <div v-for="p in row3" :key="'3b-'+p.id" class="logo-box" :title="p.nom">
+                <img v-if="p.logo" :src="getImageUrl(p.logo)" :alt="p.nom" class="carousel-img" />
+                <div v-else class="logo-placeholder">{{ p.nom }}</div>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </section>
 
@@ -98,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useReferenceStore } from '~~/stores/reference'
 import { usePartenaireStore } from '~~/stores/partenaire'
 import { domains } from '~/data/references'
@@ -106,6 +137,23 @@ import { domains } from '~/data/references'
 const referenceStore = useReferenceStore()
 const partenaireStore = usePartenaireStore()
 const config = useRuntimeConfig()
+
+// Divise les partenaires en 3 lignes
+const row1 = computed(() => {
+  const list = partenaireStore.partenaires
+  const size = Math.ceil(list.length / 3)
+  return list.slice(0, size)
+})
+const row2 = computed(() => {
+  const list = partenaireStore.partenaires
+  const size = Math.ceil(list.length / 3)
+  return list.slice(size, size * 2)
+})
+const row3 = computed(() => {
+  const list = partenaireStore.partenaires
+  const size = Math.ceil(list.length / 3)
+  return list.slice(size * 2)
+})
 
 const getImageUrl = (path?: string) => {
   if (!path) return '';
@@ -361,9 +409,12 @@ useHead({
   position: relative;
   width: 100%;
   display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow: hidden;
 }
 
-/* Gradients for fading edges */
+/* Degradés sur les côtés */
 .logos-carousel::before,
 .logos-carousel::after {
   content: "";
@@ -375,23 +426,39 @@ useHead({
   pointer-events: none;
 }
 .logos-carousel::before { left: 0; background: linear-gradient(to right, #fcfcfc, transparent); }
+.logos-carousel::after  { right: 0; background: linear-gradient(to left, #fcfcfc, transparent); }
+
+.logos-row {
+  overflow: hidden;
+  width: 100%;
+}
 
 .logos-track {
   display: flex;
   align-items: center;
   width: max-content;
-  animation: scroll 40s linear infinite;
-  gap: 2.5rem;
-  padding: 0 1.25rem;
+  animation: scroll-ltr 40s linear infinite;
+  gap: 2rem;
+  padding: 0.25rem 1rem;
 }
 
-.logos-track:hover {
+.logos-track--reverse {
+  animation: scroll-rtl 40s linear infinite;
+}
+
+.logos-track:hover,
+.logos-track--reverse:hover {
   animation-play-state: paused;
 }
 
-@keyframes scroll {
-  0% { transform: translateX(0); }
+@keyframes scroll-ltr {
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-rtl {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
 
 .logo-box {

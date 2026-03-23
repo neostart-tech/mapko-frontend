@@ -10,7 +10,7 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-bold text-black font-['Outfit']">Gestion des Partenaires</h2>
+            <h2 class="text-xl font-semibold text-black">Gestion des Partenaires</h2>
             <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
               Clients, institutions et collaborateurs
             </p>
@@ -18,7 +18,7 @@
           <div class="flex items-center gap-3">
              <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-bold">{{ partenaireStore.partenaires.length }} Partenaires</span>
+                <span class="text-xs font-semibold">{{ partenaireStore.partenaires.length }} Partenaires</span>
              </div>
              <button @click="openAddModal" class="btn-add">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,7 +71,7 @@
 
             <!-- Nom Column -->
             <template #nom="data">
-               <span class="text-sm font-bold text-black">{{ data.value.nom }}</span>
+               <span class="text-sm font-semibold text-black">{{ data.value.nom }}</span>
             </template>
 
             <!-- Actions Row Slot -->
