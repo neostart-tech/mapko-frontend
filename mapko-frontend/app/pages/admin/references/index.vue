@@ -3,8 +3,8 @@
     <!-- Breadcrumb -->
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Références' }]" />
 
-    <!-- Skeleton Loader -->
-    <div v-if="referenceStore.loading && referenceStore.references.length === 0" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+    <!-- Loader spécifique pour les données -->
+    <AdminLoader v-if="referenceStore.references.length === 0" :visible="true" inline />
 
     <div v-else class="content-wrapper">
       <!-- HEADER CARD -->

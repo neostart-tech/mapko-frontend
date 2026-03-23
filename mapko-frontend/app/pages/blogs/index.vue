@@ -22,7 +22,11 @@
         <!-- MAIN CONTENT -->
         <main class="blogs-main">
           
-          <div v-if="paginatedBlogs.length === 0" class="no-results shadow-card reveal">
+          <!-- Loader initial / infini si vide -->
+          <AdminLoader :visible="blogStore.blogs.length === 0" inline />
+
+          <!-- Message si recherche vide mais store non vide -->
+          <div v-if="blogStore.blogs.length > 0 && paginatedBlogs.length === 0" class="no-results shadow-card reveal">
             <p>Aucun article trouvé pour "{{ searchQuery }}".</p>
             <button @click="searchQuery = ''" class="btn-reset">Réinitialiser la recherche</button>
           </div>

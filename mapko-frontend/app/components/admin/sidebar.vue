@@ -197,8 +197,8 @@ const logout = async () => {
 }
 
 .logo-area-collapsed {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   background: var(--color-violet-light);
   color: #ffffff;
   border-radius: 8px;
@@ -210,7 +210,7 @@ const logout = async () => {
 }
 
 .sidebar-logo {
-  height: 30px;
+  height: 48px;
 }
 
 .btn-close-mobile {

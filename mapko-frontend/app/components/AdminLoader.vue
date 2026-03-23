@@ -1,7 +1,7 @@
 <template>
   <Transition name="fade">
-    <div v-if="visible" class="admin-loader-overlay">
-      <div class="loader-container">
+    <div v-if="visible" :class="[inline ? 'admin-loader-inline' : 'admin-loader-overlay']">
+      <div class="loader-container" :class="{ 'is-inline': inline }">
         <!-- Cercle rotatif extérieur -->
         <div class="loader-circle"></div>
         <!-- Logo au centre -->
@@ -15,8 +15,9 @@
 
 <script setup lang="ts">
 defineProps<{
-  visible: boolean
-}>()
+  visible: boolean;
+  inline?: boolean;
+}>();
 </script>
 
 <style scoped>
@@ -29,6 +30,14 @@ defineProps<{
   align-items: center;
   justify-content: center;
   z-index: 9999;
+}
+
+.admin-loader-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  width: 100%;
 }
 
 .loader-container {

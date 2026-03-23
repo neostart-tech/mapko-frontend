@@ -14,6 +14,8 @@ export default defineNuxtConfig({
     public: {
       apiBase: "http://localhost:8000/api",
       storageBase: "http://localhost:8000/storage",
+      // apiBase: "http://localhost:8000/api",
+      // storageBase: "http://localhost:8000/storage",
     },
   },
 
@@ -21,15 +23,26 @@ export default defineNuxtConfig({
     head: {
       title: "MAPKO - Conseil Stratégique & Financier",
       meta: [
-        { name: "description", content: "Cabinet de conseil stratégique, financier et organisationnel en Afrique" },
+        {
+          name: "description",
+          content:
+            "Cabinet de conseil stratégique, financier et organisationnel en Afrique",
+        },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
       ],
       link: [
         { rel: "icon", type: "image/png", href: "/images/logo_mixte.png" },
         // Google Fonts
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
-        { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" },
+        {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossorigin: "",
+        },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap",
+        },
       ],
     },
   },

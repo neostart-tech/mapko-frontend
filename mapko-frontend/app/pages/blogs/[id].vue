@@ -5,7 +5,11 @@
       <div class="blogs-container">
         
         <!-- MAIN CONTENT -->
-        <main class="blogs-main" v-if="currentBlog">
+        <main class="blogs-main">
+          <!-- Loader spécifique pour le détail -->
+          <AdminLoader :visible="!currentBlog" inline />
+
+          <template v-if="currentBlog">
           
           <!-- BREADCRUMB -->
           <nav class="breadcrumb animate-reveal">
@@ -97,6 +101,7 @@
             </div>
           </div>
 
+          </template>
         </main>
 
         <!-- SIDEBAR -->

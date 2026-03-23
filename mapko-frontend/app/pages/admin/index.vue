@@ -78,7 +78,9 @@
                   </td>
                 </tr>
                 <tr v-if="!recentProjects.length">
-                  <td colspan="4" class="text-center py-8 text-gray-400">Aucun projet trouvé</td>
+                  <td colspan="4" class="p-0">
+                    <AdminLoader :visible="true" inline />
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -100,8 +102,8 @@
                 <p class="blog-preview-date">{{ formatDate(blog.created_at) }}</p>
               </div>
             </div>
-            <div v-if="!recentBlogs.length" class="text-center py-8 text-gray-400 w-full col-span-2">
-              Démarrer en écrivant votre premier article !
+            <div v-if="!recentBlogs.length" class="w-full col-span-2">
+              <AdminLoader :visible="true" inline />
             </div>
           </div>
         </section>
@@ -132,9 +134,8 @@
                 </div>
               </div>
             </div>
-            <div v-if="!latestMessages.length" class="empty-state">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#e2e8f0" stroke-width="1"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-              <p>Aucun message pour le moment</p>
+            <div v-if="!latestMessages.length" class="w-full">
+              <AdminLoader :visible="true" inline />
             </div>
           </div>
         </section>

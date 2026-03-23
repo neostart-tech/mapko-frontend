@@ -24,7 +24,7 @@
             Modifier
           </button>
         </div>
-        
+
         <div class="info-grid">
           <div class="info-item">
             <span class="info-label">Nom</span>
@@ -57,7 +57,7 @@
             Modifier mon mot de passe
           </button>
         </div>
-        
+
         <div class="info-grid">
           <div class="info-item security-item">
             <div class="security-desc">
@@ -139,7 +139,8 @@
           <div class="form-group">
             <label>Confirmer le nouveau mot de passe</label>
             <div class="input-password-wrapper">
-              <input :type="showPasswords.confirm ? 'text' : 'password'" v-model="passwordForm.new_password_confirmation" required />
+              <input :type="showPasswords.confirm ? 'text' : 'password'"
+                v-model="passwordForm.new_password_confirmation" required />
               <button type="button" class="btn-toggle-eye" @click="showPasswords.confirm = !showPasswords.confirm">
                 <component :is="showPasswords.confirm ? IconEyeOff : IconEye" />
               </button>
@@ -243,10 +244,10 @@ const savePersonalInfo = async () => {
       email: formUserInfo.value.email,
       telephone: formUserInfo.value.phone
     })
-    
+
     initializeUserInfo()
     closeModals()
-    
+
     Swal.fire({
       title: 'Profil mis à jour',
       icon: 'success',
@@ -272,10 +273,10 @@ const savePassword = async () => {
     passwordError.value = 'Les mots de passe ne correspondent pas.'
     return
   }
-  
+
   try {
     await userStore.updatePassword(passwordForm.value)
-    
+
     closeModals()
     Swal.fire({
       title: 'Mot de passe modifié',
@@ -547,7 +548,8 @@ const savePassword = async () => {
   color: #0f172a;
   outline: none;
   transition: all 0.2s ease;
-  background: #f8fafc; /* Fond "plein" comme sur le login */
+  background: #f8fafc;
+  /* Fond "plein" comme sur le login */
 }
 
 .form-group input:focus {
@@ -648,14 +650,17 @@ const savePassword = async () => {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+
   .form-row {
     grid-template-columns: 1fr;
   }
+
   .card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
+
   .security-item {
     flex-direction: column;
     align-items: flex-start;

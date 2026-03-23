@@ -3,8 +3,8 @@
     <!-- Breadcrumb -->
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Secteurs' }]" />
 
-    <!-- Skeleton Loader (simulé) -->
-    <div v-if="secteurStore.loading && secteurStore.secteurs.length === 0" class="bg-white rounded-2xl h-96 animate-pulse border border-gray-200"></div>
+    <!-- Loader circulaire autour du logo -->
+    <AdminLoader v-if="secteurs.length === 0" :visible="true" inline />
 
     <div v-else class="content-wrapper">
       <!-- HEADER CARD -->
@@ -17,48 +17,55 @@
             </p>
           </div>
           <div class="flex items-center gap-3">
-             <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
-                <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-bold">{{ secteurs.length }} Secteurs enregistrés</span>
-             </div>
-             <NuxtLink to="/admin/secteurs/ajouter" class="btn-add">
-               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-               </svg>
-               Ajouter
-             </NuxtLink>
+            <div
+              class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full bg-violet-600"></span>
+              <span class="text-xs font-bold">{{ secteurs.length }} Secteurs enregistrés</span>
+            </div>
+            <NuxtLink to="/admin/secteurs/ajouter" class="btn-add">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Ajouter
+            </NuxtLink>
           </div>
         </div>
 
         <!-- FILTERS -->
         <div class="flex flex-wrap items-center gap-4 px-6 py-4 border-b border-gray-50 bg-[#fafafa]/50">
           <div class="relative w-full sm:w-64">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              placeholder="Rechercher par titre, description..." 
-              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
-            />
+            <input v-model="searchQuery" type="text" placeholder="Rechercher par titre, description..."
+              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium" />
           </div>
 
           <!-- COLUMNS TOGGLE -->
           <div class="relative" ref="dropdownRef">
-            <button @click="isDropdownOpen = !isDropdownOpen" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+            <button @click="isDropdownOpen = !isDropdownOpen"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
               </svg>
               Colonnes
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform" :class="isDropdownOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform"
+                :class="isDropdownOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             <transition name="dropdown">
-              <div v-if="isDropdownOpen" class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-xl z-20 border border-gray-100 overflow-hidden">
+              <div v-if="isDropdownOpen"
+                class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-xl z-20 border border-gray-100 overflow-hidden">
                 <div class="py-1">
-                  <label v-for="col in allColumns" :key="col.field" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <label v-for="col in allColumns" :key="col.field"
+                    class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="checkbox" v-model="col.visible" class="rounded accent-violet-600" />
                     <span class="font-medium">{{ col.title }}</span>
                   </label>
@@ -67,63 +74,59 @@
             </transition>
           </div>
 
-          <button @click="resetFilters" class="text-xs font-bold text-gray-400 hover:text-violet-600 transition-colors flex items-center gap-1">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-             </svg>
-             Réinitialiser
+          <button @click="resetFilters"
+            class="text-xs font-bold text-gray-400 hover:text-violet-600 transition-colors flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Réinitialiser
           </button>
         </div>
 
         <!-- TABLE -->
         <div class="p-6">
-          <vue3-datatable
-            :rows="secteurs"
-            :columns="visibleColumns"
-            :search="searchQuery"
-            :sortable="true"
-            :sortColumn="'titre'"
-            :sortOrder="'asc'"
-            :loading="secteurStore.loading"
-            skin="bh-table-hover bh-table-compact"
-            class="custom-datatable"
-            :pageSize="10"
-            :totalRows="secteurs.length"
-            :noDataContent="'Aucun secteur trouvé'"
-            :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'"
-          >
+          <vue3-datatable :rows="secteurs" :columns="visibleColumns" :search="searchQuery" :sortable="true"
+            :sortColumn="'titre'" :sortOrder="'asc'" :loading="secteurStore.loading"
+            skin="bh-table-hover bh-table-compact" class="custom-datatable" :pageSize="10" :totalRows="secteurs.length"
+            :noDataContent="'Aucun secteur trouvé'" :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'">
             <!-- Image Column -->
             <template #image="data">
-              <div 
+              <div
                 class="h-12 w-16 min-w-[64px] rounded-lg bg-gray-100 bg-cover bg-center flex items-center justify-center overflow-hidden border border-gray-200"
-                :style="data.value.image ? { backgroundImage: `url(${data.value.image})` } : {}"
-              >
+                :style="data.value.image ? { backgroundImage: `url(${data.value.image})` } : {}">
                 <span v-if="!data.value.image" class="text-[10px] text-gray-400 font-bold uppercase">Image</span>
               </div>
             </template>
 
             <!-- Titre Column -->
             <template #titre="data">
-               <span class="text-sm font-bold text-black">{{ data.value.titre }}</span>
+              <span class="text-sm font-bold text-black">{{ data.value.titre }}</span>
             </template>
 
             <!-- Description Column -->
             <template #description="data">
-               <span class="text-sm text-gray-500 truncate max-w-[250px] inline-block" :title="data.value.description">{{ data.value.description }}</span>
+              <span class="text-sm text-gray-500 truncate max-w-[250px] inline-block" :title="data.value.description">{{
+                data.value.description }}</span>
             </template>
 
             <!-- Actions Row Slot -->
             <template #actions="data">
               <div class="flex items-center justify-center gap-2">
                 <NuxtLink :to="'/admin/secteurs/' + data.value.id" class="action-btn edit" title="Modifier">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </NuxtLink>
                 <button @click="confirmDelete(data.value)" class="action-btn delete" title="Supprimer">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
               </div>
@@ -227,8 +230,16 @@ onUnmounted(() => {
 
 <style scoped>
 /* Transiciones y Animaciones */
-.dropdown-enter-active, .dropdown-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
-.dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: translateY(-6px); }
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
 
 /* Buttons */
 .btn-add {
@@ -302,9 +313,23 @@ onUnmounted(() => {
   text-decoration: none;
 }
 
-.action-btn.edit { background: rgba(15, 76, 129, 0.05); color: #0F4C81; }
-.action-btn.edit:hover { background: #0F4C81; color: #fff; }
+.action-btn.edit {
+  background: rgba(15, 76, 129, 0.05);
+  color: #0F4C81;
+}
 
-.action-btn.delete { background: #fef2f2; color: #ef4444; }
-.action-btn.delete:hover { background: #ef4444; color: #fff; }
+.action-btn.edit:hover {
+  background: #0F4C81;
+  color: #fff;
+}
+
+.action-btn.delete {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.action-btn.delete:hover {
+  background: #ef4444;
+  color: #fff;
+}
 </style>

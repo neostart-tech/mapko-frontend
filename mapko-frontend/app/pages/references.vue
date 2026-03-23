@@ -29,7 +29,10 @@
     <!-- PROJECTS GRID -->
     <section class="ref-projects">
       <div class="ref-projects__container">
-        <div class="projects-grid">
+        <!-- Loader spécifique pour les données -->
+        <AdminLoader :visible="referenceStore.references.length === 0" inline />
+
+        <div v-if="referenceStore.references.length > 0" class="projects-grid">
           <div 
             v-for="(project, index) in referenceStore.references" 
             :key="project.id"
@@ -73,6 +76,9 @@
       </div>
 
       <div class="logos-carousel">
+        <!-- Loader spécifique pour les partenaires -->
+        <AdminLoader :visible="partenaireStore.partenaires.length === 0" inline />
+
         <div class="logos-track" v-if="partenaireStore.partenaires.length > 0">
           <!-- Premier set -->
           <div v-for="partenaire in partenaireStore.partenaires" :key="'a-'+partenaire.id" class="logo-box" :title="partenaire.nom">

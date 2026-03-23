@@ -20,7 +20,10 @@
     <!-- GRID -->
     <section class="secteurs-grid-section">
       <div class="secteurs-grid-section__container">
-        <div class="secteurs-grid" ref="secteursSection" :class="{ 'is-visible': isVisible }">
+        <!-- Loader spécifique pour les données -->
+        <AdminLoader :visible="secteurStore.secteurs.length === 0" inline />
+
+        <div v-if="secteurStore.secteurs.length > 0" class="secteurs-grid" ref="secteursSection" :class="{ 'is-visible': isVisible }">
           <div 
             v-for="(sector, index) in shuffledSecteurs" 
             :key="sector.id"

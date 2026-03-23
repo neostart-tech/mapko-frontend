@@ -23,7 +23,8 @@
 
             <div class="form-group">
               <label>Description</label>
-              <textarea v-model="form.description" rows="6" placeholder="Spécifiez les activités, l'approche et la valeur ajoutée de ce secteur..."></textarea>
+              <textarea v-model="form.description" rows="6"
+                placeholder="Spécifiez les activités, l'approche et la valeur ajoutée de ce secteur..."></textarea>
             </div>
           </div>
 
@@ -31,7 +32,7 @@
           <div class="form-sidebar">
             <div class="form-group">
               <label>Image d'illustration principale</label>
-              
+
               <div class="image-upload-box" :class="{ 'has-image': imagePreview }">
                 <div v-if="!imagePreview" class="upload-placeholder">
                   <component :is="IconImage" class="upload-icon" />
@@ -40,7 +41,8 @@
                 </div>
                 <div v-else class="preview-container">
                   <img :src="imagePreview" class="image-preview" alt="Aperçu" />
-                  <button type="button" class="btn-remove-img" @click.stop="imagePreview = ''; imageFile = null" title="Retirer l'image">
+                  <button type="button" class="btn-remove-img" @click.stop="imagePreview = ''; imageFile = null"
+                    title="Retirer l'image">
                     <component :is="IconClose" />
                   </button>
                 </div>
@@ -55,8 +57,8 @@
         <div class="form-actions border-top">
           <NuxtLink to="/admin/secteurs" class="btn-cancel">Annuler</NuxtLink>
           <button type="submit" class="btn-save btn-save-edit" :disabled="secteurStore.loading">
-             <component :is="IconSave" class="icon-sm" />
-             {{ secteurStore.loading ? 'Mise à jour...' : 'Mettre à jour le secteur' }}
+            <component :is="IconSave" class="icon-sm" />
+            {{ secteurStore.loading ? 'Mise à jour...' : 'Mettre à jour le secteur' }}
           </button>
         </div>
       </form>
@@ -222,7 +224,8 @@ const updateSecteur = async () => {
 .form-group input:focus,
 .form-group textarea:focus {
   background: #ffffff;
-  border-color: var(--color-blue); /* Pour l'édition, on utilise la couleur secondaire (Bleu) */
+  border-color: var(--color-blue);
+  /* Pour l'édition, on utilise la couleur secondaire (Bleu) */
   box-shadow: 0 0 0 4px rgba(15, 76, 129, 0.1);
 }
 
@@ -320,6 +323,7 @@ const updateSecteur = async () => {
 .btn-remove-img:hover {
   background: #ef4444;
 }
+
 .btn-remove-img svg {
   width: 16px;
   height: 16px;
