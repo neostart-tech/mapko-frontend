@@ -7,8 +7,8 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 animate-reveal reveal-delay-1">
       <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-xl font-semibold text-black">Paramètres du Compte</h2>
-          <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-medium">
+          <h2 class="text-xl  text-black">Paramètres du Compte</h2>
+          <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider ">
             Gérez vos informations personnelles et vos préférences de sécurité.
           </p>
         </div>
@@ -312,7 +312,7 @@ const savePassword = async () => {
 
 .header-text h1 {
   font-size: 1.75rem;
-  font-weight: 700;
+  
   color: #000000;
   margin: 0;
 }
@@ -374,7 +374,7 @@ const savePassword = async () => {
 
 .card-title-group h2 {
   font-size: 1.25rem;
-  font-weight: 600;
+  
   color: #000000;
   margin: 0;
 }
@@ -388,7 +388,7 @@ const savePassword = async () => {
   border: 1px solid rgba(122, 46, 142, 0.2);
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
-  font-weight: 500;
+  
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -441,7 +441,7 @@ const savePassword = async () => {
 
 .info-label {
   font-size: 0.8rem;
-  font-weight: 500;
+  
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -449,14 +449,14 @@ const savePassword = async () => {
 
 .info-value {
   font-size: 1rem;
-  font-weight: 500;
+  
   color: #0f172a;
 }
 
 .security-hint {
   font-size: 0.85rem;
   color: #64748b;
-  font-weight: 500;
+  
 }
 
 /* Modal Styles */
@@ -496,7 +496,7 @@ const savePassword = async () => {
 
 .modal-header h3 {
   font-size: 1.35rem;
-  font-weight: 700;
+  
   color: #000000;
   margin: 0;
 }
@@ -540,7 +540,7 @@ const savePassword = async () => {
 
 .form-group label {
   font-size: 0.85rem;
-  font-weight: 600;
+  
   color: #475569;
 }
 
@@ -596,7 +596,7 @@ const savePassword = async () => {
 .error-msg {
   color: #ef4444;
   font-size: 0.85rem;
-  font-weight: 500;
+  
   margin: 0;
 }
 
@@ -613,7 +613,7 @@ const savePassword = async () => {
   color: #475569;
   padding: 0.8rem 1.5rem;
   border-radius: 10px;
-  font-weight: 600;
+  
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -630,7 +630,7 @@ const savePassword = async () => {
   border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 10px;
-  font-weight: 600;
+  
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -672,3 +672,4 @@ const savePassword = async () => {
   }
 }
 </style>
+

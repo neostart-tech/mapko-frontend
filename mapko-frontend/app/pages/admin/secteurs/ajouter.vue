@@ -133,7 +133,7 @@ const saveSecteur = async () => {
 
 .header-text h1 {
   font-size: 1.75rem;
-  font-weight: 700;
+  
   color: #000000;
   margin: 0;
 }
@@ -167,7 +167,7 @@ const saveSecteur = async () => {
 
 .form-group label {
   font-size: 0.85rem;
-  font-weight: 700;
+  
   color: #334155;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -233,7 +233,7 @@ const saveSecteur = async () => {
 }
 
 .upload-placeholder p {
-  font-weight: 600;
+  
   color: #475569;
   margin: 0;
   font-size: 0.95rem;
@@ -314,7 +314,7 @@ const saveSecteur = async () => {
 .or-divider span {
   padding: 0 1rem;
   font-size: 0.75rem;
-  font-weight: 700;
+  
   color: #94a3b8;
 }
 
@@ -336,7 +336,7 @@ const saveSecteur = async () => {
   color: #475569;
   padding: 0.8rem 1.8rem;
   border-radius: 10px;
-  font-weight: 600;
+  
   font-size: 0.95rem;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -358,7 +358,7 @@ const saveSecteur = async () => {
   border: none;
   padding: 0.8rem 1.8rem;
   border-radius: 10px;
-  font-weight: 600;
+  
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -382,3 +382,4 @@ const saveSecteur = async () => {
   }
 }
 </style>
+

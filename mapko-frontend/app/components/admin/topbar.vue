@@ -142,7 +142,7 @@ const initials = computed(() => {
   gap: 0.5rem;
   background: #ecfdf5;
   color: #059669;
-  font-weight: 500;
+  
   font-size: 0.75rem;
   padding: 0.25rem 0.6rem;
   border-radius: 100px;
@@ -183,7 +183,7 @@ const initials = computed(() => {
 
 .user-name {
   font-size: 0.875rem;
-  font-weight: 500;
+  
   color: #1a202c;
   margin: 0;
 }
@@ -214,7 +214,7 @@ const initials = computed(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-weight: 600;
+  
   font-size: 0.85rem;
   letter-spacing: 0.5px;
 }
@@ -235,3 +235,4 @@ const initials = computed(() => {
   }
 }
 </style>
+

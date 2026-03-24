@@ -11,15 +11,15 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-semibold text-black">Gestion des Références</h2>
-            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+            <h2 class="text-xl  text-black">Gestion des Références</h2>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider ">
               Projets réalisés et en cours de réalisation
             </p>
           </div>
           <div class="flex items-center gap-3">
              <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-semibold">{{ referenceStore.references.length }} Projets</span>
+                <span class="text-xs ">{{ referenceStore.references.length }} Projets</span>
              </div>
              <NuxtLink to="/admin/references/ajouter" class="btn-add">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -40,11 +40,11 @@
               v-model="searchQuery" 
               type="text" 
               placeholder="Titre, pays, secteur..." 
-              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
+              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all "
             />
           </div>
 
-          <select v-model="filterStatus" class="px-4 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all cursor-pointer">
+          <select v-model="filterStatus" class="px-4 py-2.5 rounded-xl text-sm  border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all cursor-pointer">
               <option value="all">Tous les statuts</option>
               <option value="en_cours">En cours</option>
               <option value="termine">Terminé</option>
@@ -52,7 +52,7 @@
 
           <!-- COLUMNS TOGGLE -->
           <div class="relative" ref="dropdownRef">
-            <button @click="isDropdownOpen = !isDropdownOpen" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
+            <button @click="isDropdownOpen = !isDropdownOpen" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm  bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
               </svg>
@@ -66,14 +66,14 @@
                 <div class="py-1">
                   <label v-for="col in allColumns" :key="col.field" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="checkbox" v-model="col.visible" class="rounded accent-violet-600" />
-                    <span class="font-medium">{{ col.title }}</span>
+                    <span class="">{{ col.title }}</span>
                   </label>
                 </div>
               </div>
             </transition>
           </div>
 
-          <button @click="resetFilters" class="text-xs font-bold text-gray-400 hover:text-violet-600 transition-colors flex items-center gap-1">
+          <button @click="resetFilters" class="text-xs  text-gray-400 hover:text-violet-600 transition-colors flex items-center gap-1">
              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
              </svg>
@@ -98,8 +98,8 @@
           >
             <!-- Titre Column -->
             <template #titre="data">
-               <span class="text-sm font-bold text-black">{{ data.value.titre }}</span>
-               <div v-if="data.value.secteur" class="text-[10px] text-gray-400 mt-1 font-semibold uppercase">{{ data.value.secteur.titre }}</div>
+               <span class="text-sm  text-black">{{ data.value.titre }}</span>
+               <div v-if="data.value.secteur" class="text-[10px] text-gray-400 mt-1  uppercase">{{ data.value.secteur.titre }}</div>
             </template>
 
             <!-- Description -->
@@ -109,27 +109,27 @@
 
             <!-- Période -->
             <template #periode="data">
-               <span class="text-sm font-semibold text-gray-600">
+               <span class="text-sm  text-gray-600">
                  {{ data.value.annee_debut }} — {{ data.value.annee_fin || 'À ce jour' }}
                </span>
             </template>
 
             <!-- Montant -->
             <template #montant="data">
-               <span class="text-sm font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded">{{ data.value.montant }}</span>
+               <span class="text-sm  text-blue-700 bg-blue-50 px-2 py-1 rounded">{{ data.value.montant }}</span>
             </template>
             
             <!-- Pays -->
             <template #pays="data">
                <div class="flex items-center gap-1">
-                  <span class="text-sm font-medium text-gray-700">{{ data.value.pays }}</span>
+                  <span class="text-sm  text-gray-700">{{ data.value.pays }}</span>
                </div>
             </template>
 
             <!-- Statut Column -->
             <template #statut="data">
                <span 
-                 class="px-3 py-1 text-xs font-bold rounded-full border"
+                 class="px-3 py-1 text-xs  rounded-full border"
                  :class="data.value.statut === 'en_cours' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-blue-700 border-blue-200'"
                >
                  {{ data.value.statut === 'en_cours' ? 'En cours' : 'Terminé' }}
@@ -267,7 +267,7 @@ onUnmounted(() => {
   color: #ffffff;
   padding: 0.5rem 1.25rem;
   border-radius: 12px;
-  font-weight: 700;
+  
   font-size: 0.9rem;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -290,7 +290,7 @@ onUnmounted(() => {
   background: #fcfcfc !important;
   color: #94a3b8 !important;
   font-size: 0.75rem !important;
-  font-weight: 800 !important;
+  
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 1.25rem 1rem !important;
@@ -313,7 +313,7 @@ onUnmounted(() => {
 :deep(.bh-pagination .bh-page-item) {
   border-radius: 8px;
   margin: 0 2px;
-  font-weight: 700;
+  
 }
 
 /* Actions */
@@ -336,3 +336,4 @@ onUnmounted(() => {
 .action-btn.delete { background: #fef2f2; color: #ef4444; }
 .action-btn.delete:hover { background: #ef4444; color: #fff; }
 </style>
+

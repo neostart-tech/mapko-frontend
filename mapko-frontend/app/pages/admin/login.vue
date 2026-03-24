@@ -170,7 +170,7 @@ useHead({
 
 .login-title {
   font-size: 1.5rem;
-  font-weight: 800;
+  
   color: #1a202c;
   margin-bottom: 0.5rem;
 }
@@ -194,7 +194,7 @@ useHead({
 
 .form-group label {
   font-size: 0.875rem;
-  font-weight: 600;
+  
   color: #4a5568;
 }
 
@@ -262,7 +262,7 @@ input:focus {
 .forgot-link {
   font-size: 0.875rem;
   color: #7A2E8E;
-  font-weight: 600;
+  
   text-decoration: none;
 }
 
@@ -272,7 +272,7 @@ input:focus {
   color: #ffffff;
   border: none;
   border-radius: 12px;
-  font-weight: 700;
+  
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -306,3 +306,4 @@ input:focus {
   color: rgba(255, 255, 255, 0.3);
 }
 </style>
+

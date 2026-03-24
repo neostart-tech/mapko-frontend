@@ -11,8 +11,8 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-semibold text-black">Gestion des Messages</h2>
-            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+            <h2 class="text-xl text-black">Gestion des Messages</h2>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider">
               Flux des demandes de contact
             </p>
           </div>
@@ -223,14 +223,17 @@
 
           <!-- Modal Footer -->
           <div class="px-8 py-5 border-t border-gray-50 bg-gray-50/50 flex justify-end gap-3">
-            <button @click="sendReply(selectedMessage)"
-              :disabled="isSendingReply"
+            <button @click="sendReply(selectedMessage)" :disabled="isSendingReply"
               class="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl transition-all shadow-md active:scale-95">
-              <svg v-if="!isSendingReply" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              <svg v-if="!isSendingReply" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 animate-spin" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               {{ isSendingReply ? 'Envoi...' : 'Envoyer la réponse' }}
             </button>

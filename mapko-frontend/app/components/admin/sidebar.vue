@@ -225,7 +225,7 @@ const logout = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  
   font-size: 1.2rem;
 }
 
@@ -263,7 +263,7 @@ const logout = async () => {
   color: #94a3b8;
   margin-bottom: 0.75rem;
   padding-left: 1rem;
-  font-weight: 700;
+  
 }
 
 .nav-link {
@@ -274,7 +274,7 @@ const logout = async () => {
   color: #64748b;
   text-decoration: none;
   font-size: 0.95rem;
-  font-weight: 600;
+  
   border-radius: 12px;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -324,7 +324,7 @@ const logout = async () => {
   font-size: 0.7rem;
   padding: 0.1rem 0.4rem;
   border-radius: 6px;
-  font-weight: 600;
+  
 }
 
 /* Dropdown */
@@ -354,7 +354,7 @@ const logout = async () => {
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.2s ease;
-  font-weight: 500;
+  
 }
 
 .dropdown-link:hover {
@@ -365,7 +365,7 @@ const logout = async () => {
 .dropdown-link.is-sub-active {
   color: var(--color-violet);
   background: #fdf4ff;
-  font-weight: 600;
+  
 }
 
 /* Superadmin link */
@@ -379,7 +379,7 @@ const logout = async () => {
   background: var(--color-blue);
   color: #fff;
   font-size: 0.6rem;
-  font-weight: 600;
+  
   padding: 0.1rem 0.4rem;
   border-radius: 5px;
   text-transform: uppercase;
@@ -406,7 +406,7 @@ const logout = async () => {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
+  
   font-size: 0.9rem;
   transition: all 0.2s ease;
 }
@@ -447,21 +447,21 @@ const logout = async () => {
 
 .swal2-custom-title {
   font-size: 1.25rem !important;
-  font-weight: 600 !important;
+  
   color: #1a202c !important;
 }
 
 .swal2-custom-confirm {
   border-radius: 0.75rem !important;
   padding: 0.75rem 2rem !important;
-  font-weight: 600 !important;
+  
   font-size: 0.9rem !important;
 }
 
 .swal2-custom-cancel {
   border-radius: 0.75rem !important;
   padding: 0.75rem 2rem !important;
-  font-weight: 600 !important;
+  
   font-size: 0.9rem !important;
 }
 
@@ -473,3 +473,4 @@ const logout = async () => {
   box-shadow: 0 0 0 3px rgba(122, 46, 142, 0.2) !important;
 }
 </style>
+

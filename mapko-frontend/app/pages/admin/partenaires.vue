@@ -10,15 +10,15 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-semibold text-black">Gestion des Partenaires</h2>
-            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+            <h2 class="text-xl  text-black">Gestion des Partenaires</h2>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider ">
               Clients, institutions et collaborateurs
             </p>
           </div>
           <div class="flex items-center gap-3">
              <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-semibold">{{ partenaireStore.partenaires.length }} Partenaires</span>
+                <span class="text-xs ">{{ partenaireStore.partenaires.length }} Partenaires</span>
              </div>
              <button @click="openAddModal" class="btn-add">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,7 +39,7 @@
               v-model="searchQuery" 
               type="text" 
               placeholder="Rechercher un partenaire..." 
-              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
+              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all "
             />
           </div>
         </div>
@@ -65,13 +65,13 @@
             <template #logo="data">
               <div class="h-16 w-16 min-w-[64px] rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100 p-2">
                 <img v-if="data.value.logo" :src="getImageUrl(data.value.logo)" class="max-h-full max-w-full object-contain" alt="Logo" />
-                <span v-else class="text-[10px] text-gray-400 font-bold uppercase">Logo</span>
+                <span v-else class="text-[10px] text-gray-400  uppercase">Logo</span>
               </div>
             </template>
 
             <!-- Nom Column -->
             <template #nom="data">
-               <span class="text-sm font-semibold text-black">{{ data.value.nom }}</span>
+               <span class="text-sm  text-black">{{ data.value.nom }}</span>
             </template>
 
             <!-- Actions Row Slot -->
@@ -380,7 +380,7 @@ onMounted(async () => {
 
 .modal-header h3 {
   font-size: 1.35rem;
-  font-weight: 700;
+  
   color: #000000;
   margin: 0;
 }
@@ -419,7 +419,7 @@ onMounted(async () => {
 
 .form-group label {
   font-size: 0.8rem;
-  font-weight: 800;
+  
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #64748b;
@@ -435,7 +435,7 @@ onMounted(async () => {
   outline: none;
   transition: all 0.2s ease;
   background: #f8fafc;
-  font-weight: 500;
+  
 }
 
 .form-group input:focus {
@@ -488,7 +488,7 @@ onMounted(async () => {
   margin-bottom: 0.8rem;
 }
 
-.upload-placeholder p { font-weight: 700; color: #475569; margin: 0; font-size: 0.9rem; }
+.upload-placeholder p {  color: #475569; margin: 0; font-size: 0.9rem; }
 .upload-hint { font-size: 0.70rem; color: #94a3b8; margin-top: 0.4rem; }
 
 .file-input {
@@ -513,7 +513,7 @@ onMounted(async () => {
   display: flex; align-items: center; text-align: center; margin: 0.5rem 0;
 }
 .or-divider::before, .or-divider::after { content: ''; flex: 1; border-bottom: 1px solid #e2e8f0; }
-.or-divider span { padding: 0 1rem; font-size: 0.70rem; font-weight: 800; color: #94a3b8; }
+.or-divider span { padding: 0 1rem; font-size: 0.70rem;  color: #94a3b8; }
 
 .modal-actions {
   display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;
@@ -521,14 +521,14 @@ onMounted(async () => {
 
 .btn-cancel {
   background: transparent; border: 1px solid #cbd5e1; color: #475569;
-  padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+  padding: 0.8rem 1.5rem; border-radius: 10px;  font-size: 0.95rem;
   cursor: pointer; transition: all 0.2s ease;
 }
 .btn-cancel:hover { background: #f8fafc; border-color: #94a3b8; }
 
 .btn-submit {
   background: var(--color-violet); color: #ffffff; border: none;
-  padding: 0.8rem 1.8rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+  padding: 0.8rem 1.8rem; border-radius: 10px;  font-size: 0.95rem;
   cursor: pointer; transition: all 0.2s ease;
 }
 .btn-submit:hover { filter: brightness(1.1); box-shadow: 0 4px 12px rgba(122, 46, 142, 0.2); }
@@ -546,7 +546,7 @@ button:disabled {
 .btn-add {
   display: flex; align-items: center; gap: 0.5rem;
   background: var(--color-violet); color: #ffffff;
-  padding: 0.5rem 1.25rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem;
+  padding: 0.5rem 1.25rem; border-radius: 12px;  font-size: 0.9rem;
   cursor: pointer; transition: all 0.2s ease; border: none;
   box-shadow: 0 4px 12px rgba(122, 46, 142, 0.15);
 }
@@ -555,12 +555,12 @@ button:disabled {
 :deep(.bh-table-hover tbody tr:hover td) { background-color: #f8fafc !important; }
 :deep(.bh-table thead th) {
   background: #fcfcfc !important; color: #94a3b8 !important; font-size: 0.75rem !important;
-  font-weight: 800 !important; text-transform: uppercase; letter-spacing: 0.05em;
+   text-transform: uppercase; letter-spacing: 0.05em;
   padding: 1.25rem 1rem !important; border-bottom: 1px solid #f1f5f9 !important;
 }
 :deep(.bh-table tbody td) { padding: 1rem 1rem !important; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
 :deep(.bh-pagination .bh-page-item.bh-active) { background-color: var(--color-violet) !important; border-color: var(--color-violet) !important; border-radius: 8px; }
-:deep(.bh-pagination .bh-page-item) { border-radius: 8px; margin: 0 2px; font-weight: 700; }
+:deep(.bh-pagination .bh-page-item) { border-radius: 8px; margin: 0 2px;  }
 
 .action-btn { height: 36px; width: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s ease; border: none; cursor: pointer; }
 .action-btn.edit { background: rgba(15, 76, 129, 0.05); color: #0F4C81; }
@@ -568,3 +568,4 @@ button:disabled {
 .action-btn.delete { background: #fef2f2; color: #ef4444; }
 .action-btn.delete:hover { background: #ef4444; color: #fff; }
 </style>
+

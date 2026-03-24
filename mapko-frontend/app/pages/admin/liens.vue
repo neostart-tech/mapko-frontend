@@ -140,7 +140,7 @@ const updateLiens = async () => {
 .liens-page { display: flex; flex-direction: column; }
 
 .page-header { margin-top: 1rem; margin-bottom: 2.5rem; }
-.header-text h1 { font-size: 1.75rem; font-weight: 700; color: #000000; margin: 0; }
+.header-text h1 { font-size: 1.75rem;  color: #000000; margin: 0; }
 .header-text p { color: #64748b; font-size: 0.95rem; margin-top: 0.25rem; }
 
 .content-card {
@@ -165,7 +165,7 @@ const updateLiens = async () => {
 
 .form-group label {
   font-size: 0.85rem;
-  font-weight: 800;
+  
   color: #334155;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -186,7 +186,7 @@ const updateLiens = async () => {
   outline: none;
   transition: all 0.2s ease;
   background: #f8fafc;
-  font-weight: 500;
+  
 }
 
 .form-group input[type="url"]:focus {
@@ -201,7 +201,7 @@ const updateLiens = async () => {
 .btn-save {
   display: inline-flex; align-items: center; gap: 0.5rem;
   background: var(--color-violet); color: #ffffff; border: none;
-  padding: 0.8rem 1.8rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+  padding: 0.8rem 1.8rem; border-radius: 10px;  font-size: 0.95rem;
   cursor: pointer; transition: all 0.2s ease;
 }
 
@@ -209,3 +209,4 @@ const updateLiens = async () => {
 
 .icon-sm { width: 18px; height: 18px; }
 </style>
+

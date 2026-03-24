@@ -10,15 +10,15 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-semibold text-black">Gestion des Articles de Blog</h2>
-            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+            <h2 class="text-xl  text-black">Gestion des Articles de Blog</h2>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider ">
               Actualités, articles et publications
             </p>
           </div>
           <div class="flex items-center gap-3">
              <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
                 <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-                <span class="text-xs font-semibold">{{ blogStore.blogs.length }} Articles</span>
+                <span class="text-xs ">{{ blogStore.blogs.length }} Articles</span>
              </div>
              <NuxtLink to="/admin/blogs/ajouter" class="btn-add">
                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,13 +39,13 @@
               v-model="searchQuery" 
               type="text" 
               placeholder="Rechercher par titre, contenu..." 
-              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
+              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all "
             />
           </div>
 
           <!-- COLUMNS TOGGLE -->
           <div class="relative" ref="dropdownRef">
-            <button @click="isDropdownOpen = !isDropdownOpen" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
+            <button @click="isDropdownOpen = !isDropdownOpen" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm  bg-violet-50 text-violet-700 hover:bg-violet-100 transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
               </svg>
@@ -59,14 +59,14 @@
                 <div class="py-1">
                   <label v-for="col in allColumns" :key="col.field" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
                     <input type="checkbox" v-model="col.visible" class="rounded accent-violet-600" />
-                    <span class="font-medium">{{ col.title }}</span>
+                    <span class="">{{ col.title }}</span>
                   </label>
                 </div>
               </div>
             </transition>
           </div>
 
-          <button @click="resetFilters" class="text-xs font-bold text-gray-400 hover:text-violet-600 transition-colors flex items-center gap-1">
+          <button @click="resetFilters" class="text-xs  text-gray-400 hover:text-violet-600 transition-colors flex items-center gap-1">
              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
              </svg>
@@ -95,21 +95,21 @@
                 class="h-12 w-20 min-w-[80px] rounded-lg bg-gray-100 bg-cover bg-center flex items-center justify-center overflow-hidden border border-gray-200"
                 :style="getCouverture(data.value) ? { backgroundImage: `url(${getCouverture(data.value)})` } : {}"
               >
-                <span v-if="!getCouverture(data.value)" class="text-[10px] text-gray-400 font-bold uppercase">Image</span>
+                <span v-if="!getCouverture(data.value)" class="text-[10px] text-gray-400  uppercase">Image</span>
               </div>
             </template>
 
             <!-- Catégorie Column -->
             <template #categorie="data">
-               <span class="px-3 py-1 bg-gray-100 text-gray-700 text-[11px] font-bold rounded-md border border-gray-200 uppercase tracking-wide">
+               <span class="px-3 py-1 bg-gray-100 text-gray-700 text-[11px]  rounded-md border border-gray-200 uppercase tracking-wide">
                  {{ data.value.categorie }}
                </span>
             </template>
 
             <!-- Titre Column -->
             <template #titre="data">
-               <span class="text-sm font-bold text-black">{{ data.value.titre }}</span>
-               <div class="text-[10px] text-gray-400 mt-1 font-semibold uppercase">{{ formatDate(data.value.created_at) }}</div>
+               <span class="text-sm  text-black">{{ data.value.titre }}</span>
+               <div class="text-[10px] text-gray-400 mt-1  uppercase">{{ formatDate(data.value.created_at) }}</div>
             </template>
 
             <!-- Contenu court -->
@@ -258,7 +258,7 @@ onUnmounted(() => {
   color: #ffffff;
   padding: 0.5rem 1.25rem;
   border-radius: 12px;
-  font-weight: 700;
+  
   font-size: 0.9rem;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -281,7 +281,7 @@ onUnmounted(() => {
   background: #fcfcfc !important;
   color: #94a3b8 !important;
   font-size: 0.75rem !important;
-  font-weight: 800 !important;
+  
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 1.25rem 1rem !important;
@@ -304,7 +304,7 @@ onUnmounted(() => {
 :deep(.bh-pagination .bh-page-item) {
   border-radius: 8px;
   margin: 0 2px;
-  font-weight: 700;
+  
 }
 
 /* Actions Buttons */
@@ -327,3 +327,4 @@ onUnmounted(() => {
 .action-btn.delete { background: #fef2f2; color: #ef4444; }
 .action-btn.delete:hover { background: #ef4444; color: #fff; }
 </style>
+

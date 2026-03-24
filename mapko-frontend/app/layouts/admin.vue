@@ -66,7 +66,7 @@ watch(() => route.path, () => {
     background: #f8fafc;
     display: flex;
     font-family: 'Outfit', sans-serif;
-    font-weight: 400;
+    
 }
 
 .admin-main {
@@ -105,3 +105,4 @@ watch(() => route.path, () => {
     }
 }
 </style>
+

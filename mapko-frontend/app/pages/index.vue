@@ -280,8 +280,7 @@ onMounted(() => {
 const statsData = ref([
   { value: 10,  current: 0, label: "ans d’expérience", suffix: "" },
   { value: 10,  current: 0, label: "pays couverts", suffix: "" },
-  { value: 100, current: 0, label: "projets accompagnés", suffix: "" },
-  { value: 80,  current: 0, label: "de projets structurés", suffix: "M€" },
+  { value: 300,  current: 0, label: "de projets structurés", suffix: "M€" },
 ])
 
 const expertises = [
@@ -486,7 +485,7 @@ const reasons = [
   max-width: 1280px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
 }
 

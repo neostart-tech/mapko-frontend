@@ -10,15 +10,15 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl font-semibold text-black">Gestion des Administrateurs</h2>
-            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">
+            <h2 class="text-xl  text-black">Gestion des Administrateurs</h2>
+            <p class="text-xs text-gray-400 mt-1 uppercase tracking-wider ">
               Comptes administrateurs de la plateforme
             </p>
           </div>
           <div class="flex items-center gap-3">
             <div class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
               <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-              <span class="text-xs font-semibold">{{ adminStore.admins.length }} Admin{{ adminStore.admins.length > 1 ? 's' : '' }}</span>
+              <span class="text-xs ">{{ adminStore.admins.length }} Admin{{ adminStore.admins.length > 1 ? 's' : '' }}</span>
             </div>
             <button @click="openAddModal" class="btn-add">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,7 +39,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher un administrateur..."
-              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-medium"
+              class="pl-10 pr-4 py-2.5 w-full rounded-xl text-sm border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all "
             />
           </div>
         </div>
@@ -53,7 +53,7 @@
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
-            <p class="text-gray-400 font-semibold mt-2">Aucun administrateur trouvé</p>
+            <p class="text-gray-400  mt-2">Aucun administrateur trouvé</p>
           </div>
 
           <vue3-datatable
@@ -79,7 +79,7 @@
                   {{ data.value.prenom.charAt(0) }}{{ data.value.nom.charAt(0) }}
                 </div>
                 <div>
-                  <span class="text-sm font-semibold text-black block">{{ data.value.prenom }} {{ data.value.nom }}</span>
+                  <span class="text-sm  text-black block">{{ data.value.prenom }} {{ data.value.nom }}</span>
                   <span class="role-badge">Admin</span>
                 </div>
               </div>
@@ -87,17 +87,17 @@
 
             <!-- Email -->
             <template #email="data">
-              <span class="text-sm text-gray-500 font-medium">{{ data.value.email }}</span>
+              <span class="text-sm text-gray-500 ">{{ data.value.email }}</span>
             </template>
 
             <!-- Téléphone -->
             <template #telephone="data">
-              <span class="text-sm text-gray-500 font-medium">{{ data.value.telephone || '—' }}</span>
+              <span class="text-sm text-gray-500 ">{{ data.value.telephone || '—' }}</span>
             </template>
 
             <!-- Date -->
             <template #created_at="data">
-              <span class="text-sm text-gray-400 font-medium">{{ formatDate(data.value.created_at) }}</span>
+              <span class="text-sm text-gray-400 ">{{ formatDate(data.value.created_at) }}</span>
             </template>
 
             <!-- Actions -->
@@ -439,7 +439,7 @@ onMounted(async () => {
 
 .modal-header h3 {
   font-size: 1.35rem;
-  font-weight: 700;
+  
   color: #000000;
   margin: 0;
 }
@@ -478,14 +478,14 @@ onMounted(async () => {
 
 .form-group label {
   font-size: 0.8rem;
-  font-weight: 800;
+  
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #64748b;
 }
 
 .optional {
-  font-weight: 500;
+  
   text-transform: none;
   letter-spacing: 0;
   color: #94a3b8;
@@ -503,7 +503,7 @@ onMounted(async () => {
   outline: none;
   transition: all 0.2s ease;
   background: #f8fafc;
-  font-weight: 500;
+  
   width: 100%;
 }
 
@@ -521,7 +521,7 @@ onMounted(async () => {
 .form-error {
   font-size: 0.75rem;
   color: #f43f5e;
-  font-weight: 600;
+  
 }
 
 /* ---- Password field with eye icon ---- */
@@ -558,7 +558,7 @@ onMounted(async () => {
   border-radius: 10px;
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  
 }
 
 /* ---- Modal actions ---- */
@@ -575,7 +575,7 @@ onMounted(async () => {
   color: #475569;
   padding: 0.8rem 1.5rem;
   border-radius: 10px;
-  font-weight: 700;
+  
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -588,7 +588,7 @@ onMounted(async () => {
   border: none;
   padding: 0.8rem 1.8rem;
   border-radius: 10px;
-  font-weight: 700;
+  
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -618,7 +618,7 @@ onMounted(async () => {
   color: #ffffff;
   padding: 0.5rem 1.25rem;
   border-radius: 12px;
-  font-weight: 700;
+  
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -633,7 +633,7 @@ onMounted(async () => {
   background: #fcfcfc !important;
   color: #94a3b8 !important;
   font-size: 0.75rem !important;
-  font-weight: 800 !important;
+  
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 1.25rem 1rem !important;
@@ -641,7 +641,7 @@ onMounted(async () => {
 }
 :deep(.bh-table tbody td) { padding: 1rem 1rem !important; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
 :deep(.bh-pagination .bh-page-item.bh-active) { background-color: var(--color-violet) !important; border-color: var(--color-violet) !important; border-radius: 8px; }
-:deep(.bh-pagination .bh-page-item) { border-radius: 8px; margin: 0 2px; font-weight: 700; }
+:deep(.bh-pagination .bh-page-item) { border-radius: 8px; margin: 0 2px;  }
 
 .action-btn { height: 36px; width: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s ease; border: none; cursor: pointer; }
 .action-btn.edit { background: rgba(15, 76, 129, 0.05); color: #0F4C81; }
@@ -656,7 +656,7 @@ onMounted(async () => {
   background: var(--color-violet);
   color: #fff;
   font-size: 0.8rem;
-  font-weight: 800;
+  
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
@@ -666,7 +666,7 @@ onMounted(async () => {
   background: rgba(122, 46, 142, 0.08);
   color: var(--color-violet);
   font-size: 0.65rem;
-  font-weight: 700;
+  
   padding: 0.1rem 0.5rem;
   border-radius: 6px;
   text-transform: uppercase;
@@ -699,7 +699,7 @@ onMounted(async () => {
 .info-banner p {
   font-size: 0.85rem;
   color: #1e40af;
-  font-weight: 500;
+  
   line-height: 1.5;
   margin: 0;
 }
@@ -710,3 +710,4 @@ onMounted(async () => {
   .modal-content { padding: 1.5rem; }
 }
 </style>
+

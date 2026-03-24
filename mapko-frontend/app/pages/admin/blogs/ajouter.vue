@@ -27,7 +27,7 @@
 
           <!-- Colonne Latérale -->
           <div class="form-sidebar bg-gray-50/50 p-6 rounded-2xl border border-gray-100 h-fit">
-            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-6 border-b border-gray-200 pb-3">Détails & Médias</h3>
+            <h3 class="text-sm  text-gray-800 uppercase tracking-widest mb-6 border-b border-gray-200 pb-3">Détails & Médias</h3>
             
             <div class="form-group mb-4">
               <label>Catégorie</label>
@@ -43,7 +43,7 @@
             <div class="form-group mt-4">
               <label class="flex justify-between items-center">
                 Image de Couverture
-                <span class="text-[9px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">Requis</span>
+                <span class="text-[9px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full  uppercase tracking-widest">Requis</span>
               </label>
               
               <div class="image-upload-box cover" :class="{ 'has-image': form.couverturePreview }">
@@ -65,7 +65,7 @@
             <!-- Galerie d'images additionnelles -->
             <div class="form-group mt-4 border-t border-gray-200 pt-5">
               <label>Galerie de l'article (Optionnel)</label>
-              <span class="text-[10px] text-gray-500 mb-2 block font-medium">Ajoutez des images supplémentaires qui illustreront le corps de votre article.</span>
+              <span class="text-[10px] text-gray-500 mb-2 block ">Ajoutez des images supplémentaires qui illustreront le corps de votre article.</span>
               
               <div class="gallery-grid">
                 <!-- Previews -->
@@ -233,7 +233,7 @@ const saveBlog = async () => {
 .blogs-ajouter-page { display: flex; flex-direction: column; }
 
 .page-header { margin-top: 1rem; margin-bottom: 2.5rem; }
-.header-text h1 { font-size: 1.75rem; font-weight: 700; color: #000000; margin: 0; }
+.header-text h1 { font-size: 1.75rem;  color: #000000; margin: 0; }
 .header-text p { color: #64748b; font-size: 0.95rem; margin-top: 0.25rem; }
 
 .content-card {
@@ -265,7 +265,7 @@ const saveBlog = async () => {
 
 .form-group label {
   font-size: 0.75rem;
-  font-weight: 800;
+  
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -285,7 +285,7 @@ const saveBlog = async () => {
   transition: all 0.2s ease;
   background: #f8fafc;
   font-family: inherit;
-  font-weight: 500;
+  
 }
 
 .custom-select {
@@ -372,7 +372,7 @@ const saveBlog = async () => {
 
 .upload-placeholder { display: flex; flex-direction: column; align-items: center; text-align: center; pointer-events: none; }
 .upload-icon { width: 32px; height: 32px; color: #94a3b8; margin-bottom: 0.5rem; }
-.upload-placeholder p { font-weight: 700; color: #475569; margin: 0; font-size: 0.85rem; }
+.upload-placeholder p {  color: #475569; margin: 0; font-size: 0.85rem; }
 .upload-hint { font-size: 0.7rem; color: #94a3b8; margin-top: 0.4rem; }
 
 .file-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
@@ -437,7 +437,7 @@ const saveBlog = async () => {
 
 .btn-cancel {
   background: transparent; border: 1px solid #cbd5e1; color: #475569;
-  padding: 0.8rem 1.8rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+  padding: 0.8rem 1.8rem; border-radius: 10px;  font-size: 0.95rem;
   text-decoration: none; transition: all 0.2s ease; display: inline-flex; align-items: center;
 }
 .btn-cancel:hover { background: #f8fafc; border-color: #94a3b8; }
@@ -445,7 +445,7 @@ const saveBlog = async () => {
 .btn-save {
   display: inline-flex; align-items: center; gap: 0.5rem;
   background: var(--color-violet); color: #ffffff; border: none;
-  padding: 0.8rem 1.8rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem;
+  padding: 0.8rem 1.8rem; border-radius: 10px;  font-size: 0.95rem;
   cursor: pointer; transition: all 0.2s ease;
 }
 .btn-save:hover { filter: brightness(1.1); box-shadow: 0 4px 12px rgba(122, 46, 142, 0.2); transform: translateY(-1px); }
@@ -457,3 +457,4 @@ const saveBlog = async () => {
   .form-sidebar { height: auto; }
 }
 </style>
+

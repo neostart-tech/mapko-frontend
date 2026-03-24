@@ -32,7 +32,7 @@
 
           <!-- Colonne Latérale -->
           <div class="form-sidebar bg-gray-50/50 p-6 rounded-2xl border border-gray-100 h-fit">
-            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-6 border-b border-gray-200 pb-3">
+            <h3 class="text-sm  text-gray-800 uppercase tracking-widest mb-6 border-b border-gray-200 pb-3">
               Métadonnées du projet</h3>
 
             <div class="form-group">
@@ -215,7 +215,7 @@ const saveReference = async () => {
 
 .header-text h1 {
   font-size: 1.75rem;
-  font-weight: 700;
+  
   color: #000000;
   margin: 0;
 }
@@ -260,7 +260,7 @@ const saveReference = async () => {
 
 .form-group label {
   font-size: 0.75rem;
-  font-weight: 800;
+  
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -280,7 +280,7 @@ const saveReference = async () => {
   transition: all 0.2s ease;
   background: #f8fafc;
   font-family: inherit;
-  font-weight: 500;
+  
 }
 
 .form-group textarea {
@@ -373,7 +373,7 @@ const saveReference = async () => {
   padding: 0.6rem 0;
   border-radius: 8px;
   font-size: 0.8rem;
-  font-weight: 700;
+  
   text-transform: uppercase;
   transition: all 0.2s ease;
   background: transparent;
@@ -411,7 +411,7 @@ const saveReference = async () => {
   color: #475569;
   padding: 0.8rem 1.8rem;
   border-radius: 10px;
-  font-weight: 700;
+  
   font-size: 0.95rem;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -433,7 +433,7 @@ const saveReference = async () => {
   border: none;
   padding: 0.8rem 1.8rem;
   border-radius: 10px;
-  font-weight: 700;
+  
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -461,3 +461,4 @@ const saveReference = async () => {
   }
 }
 </style>
+

@@ -54,7 +54,7 @@ defineProps<{
 
 .breadcrumb-link {
   font-size: 0.85rem;
-  font-weight: 400;
+  
   color: #64748b;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -71,7 +71,7 @@ defineProps<{
 
 .breadcrumb-text {
   font-size: 0.85rem;
-  font-weight: 500;
+  
   color: #000000;
 }
 
@@ -84,3 +84,4 @@ defineProps<{
   color: var(--color-violet);
 }
 </style>
+
