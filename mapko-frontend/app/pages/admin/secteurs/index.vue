@@ -4,9 +4,9 @@
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Secteurs' }]" />
 
     <!-- Loader circulaire autour du logo -->
-    <AdminLoader v-if="secteurs.length === 0" :visible="true" inline />
+    <AdminLoader v-if="secteurStore.loading && secteurs.length === 0" :visible="true" inline />
 
-    <div v-else class="content-wrapper">
+    <div v-if="!secteurStore.loading || secteurs.length > 0" class="content-wrapper">
       <!-- HEADER CARD -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -89,7 +89,7 @@
           <vue3-datatable :rows="secteurs" :columns="visibleColumns" :search="searchQuery" :sortable="true"
             :sortColumn="'titre'" :sortOrder="'asc'" :loading="secteurStore.loading"
             skin="bh-table-hover bh-table-compact" class="custom-datatable" :pageSize="10" :totalRows="secteurs.length"
-            :noDataContent="'Aucun secteur trouvé'" :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'">
+            :noDataContent="noDataMessage" :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'">
             <!-- Image Column -->
             <template #image="data">
               <div
@@ -180,6 +180,11 @@ const handleClickOutside = (e: MouseEvent) => {
 }
 
 const secteurs = computed(() => secteurStore.secteurs);
+
+const noDataMessage = computed(() => {
+  if (searchQuery.value) return `Aucun secteur trouvé pour "${searchQuery.value}"`;
+  return "Aucun secteur trouvé";
+});
 
 const resetFilters = () => {
   searchQuery.value = '';

@@ -4,9 +4,9 @@
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Références' }]" />
 
     <!-- Loader spécifique pour les données -->
-    <AdminLoader v-if="referenceStore.references.length === 0" :visible="true" inline />
+    <AdminLoader v-if="referenceStore.loading && referenceStore.references.length === 0" :visible="true" inline />
 
-    <div v-else class="content-wrapper">
+    <div v-if="!referenceStore.loading || referenceStore.references.length > 0" class="content-wrapper">
       <!-- HEADER CARD -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -93,7 +93,7 @@
             class="custom-datatable"
             :pageSize="10"
             :totalRows="filteredReferences.length"
-            :noDataContent="'Aucune référence trouvée'"
+            :noDataContent="noDataMessage"
             :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'"
           >
             <!-- Titre Column -->
@@ -189,6 +189,11 @@ const allColumns = ref([
 const visibleColumns = computed(() =>
   allColumns.value.filter((c) => c.visible).map((c) => ({ ...c }))
 );
+
+const noDataMessage = computed(() => {
+  if (searchQuery.value) return `Aucune référence trouvée pour "${searchQuery.value}"`;
+  return "Aucune référence trouvée";
+});
 
 const handleClickOutside = (e: MouseEvent) => {
   if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {

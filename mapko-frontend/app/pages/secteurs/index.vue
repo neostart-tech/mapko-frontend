@@ -21,7 +21,16 @@
     <section class="secteurs-grid-section">
       <div class="secteurs-grid-section__container">
         <!-- Loader spécifique pour les données -->
-        <AdminLoader :visible="secteurStore.secteurs.length === 0" inline />
+        <AdminLoader :visible="secteurStore.loading && secteurStore.secteurs.length === 0" inline />
+
+        <!-- Message si vide -->
+        <div v-if="!secteurStore.loading && secteurStore.secteurs.length === 0" class="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+           </svg>
+           <p class="text-lg font-medium text-gray-900">Aucun secteur d'activité répertorié pour le moment.</p>
+           <p class="text-gray-500 mt-2">Nous mettons à jour nos pôles d'expertise régulièrement.</p>
+        </div>
 
         <div v-if="secteurStore.secteurs.length > 0" class="secteurs-grid" ref="secteursSection" :class="{ 'is-visible': isVisible }">
           <div 

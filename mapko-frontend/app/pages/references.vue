@@ -30,7 +30,16 @@
     <section class="ref-projects">
       <div class="ref-projects__container">
         <!-- Loader spécifique pour les données -->
-        <AdminLoader :visible="referenceStore.references.length === 0" inline />
+        <AdminLoader :visible="referenceStore.loading && referenceStore.references.length === 0" inline />
+
+        <!-- Message si vide -->
+        <div v-if="!referenceStore.loading && referenceStore.references.length === 0" class="text-center py-24 bg-gray-50 rounded-[2.5rem] border border-dashed border-gray-200">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 mx-auto text-gray-200 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1" />
+           </svg>
+           <p class="text-xl font-bold text-gray-900">Aucune référence projet à afficher.</p>
+           <p class="text-gray-500 mt-2 max-w-md mx-auto">Nous préparons actuellement la mise à jour de nos réalisations récentes.</p>
+        </div>
 
         <div v-if="referenceStore.references.length > 0" class="projects-grid">
           <div 
@@ -76,7 +85,7 @@
 
       <div class="logos-carousel">
         <!-- Loader spécifique pour les partenaires -->
-        <AdminLoader :visible="partenaireStore.partenaires.length === 0" inline />
+        <AdminLoader :visible="partenaireStore.loading && partenaireStore.partenaires.length === 0" inline />
 
         <template v-if="partenaireStore.partenaires.length > 0">
           <!-- Ligne 1 : droite → gauche -->

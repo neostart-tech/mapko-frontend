@@ -4,9 +4,9 @@
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Messages' }]" />
 
     <!-- Loader circulaire autour du logo -->
-    <AdminLoader v-if="messageStore.messages.length === 0" :visible="true" inline />
+    <AdminLoader v-if="messageStore.loading && messageStore.messages.length === 0" :visible="true" inline />
 
-    <div v-else class="content-wrapper">
+    <div v-if="!messageStore.loading || messageStore.messages.length > 0" class="content-wrapper">
       <!-- HEADER CARD -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -88,8 +88,7 @@
         <div class="p-6">
           <vue3-datatable :rows="filteredRows" :columns="visibleColumns" :search="search" :sortable="true"
             :loading="messageStore.loading" skin="bh-table-hover bh-table-compact" class="custom-datatable"
-            :pageSize="10" :totalRows="filteredRows.length" :noDataContent="'Aucun message trouvé'"
-            :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'">
+            :pageSize="10" :totalRows="messages.length" :noDataContent="noDataMessage" :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'">
             <!-- Nom Column with Unread Indicator -->
             <template #expediteur="data">
               <div class="flex items-center gap-3">
@@ -292,10 +291,15 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 };
 
-const rows = computed(() => messageStore.messages);
+const messages = computed(() => messageStore.messages);
+
+const noDataMessage = computed(() => {
+  if (search.value) return `Aucun message trouvé pour "${search.value}"`;
+  return "Aucun message trouvé";
+});
 
 const filteredRows = computed(() => {
-  let data = [...rows.value];
+  let data = [...messages.value];
 
   if (filterStatus.value === 'unread') {
     data = data.filter(r => !r.statut);

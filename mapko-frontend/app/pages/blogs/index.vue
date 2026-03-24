@@ -23,12 +23,21 @@
         <!-- MAIN CONTENT -->
         <main class="blogs-main">
 
-          <!-- Loader initial / infini si vide -->
-          <AdminLoader :visible="blogStore.blogs.length === 0" inline />
+          <!-- Loader initial -->
+          <AdminLoader :visible="blogStore.loading && blogStore.blogs.length === 0" inline />
+
+          <!-- Message si la base est vide -->
+          <div v-if="!blogStore.loading && blogStore.blogs.length === 0" class="no-results shadow-card">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-200 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l5 5v11a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-lg font-medium text-gray-900">Aucun article de blog disponible.</p>
+            <p class="text-gray-500 mt-2">Revenez bientôt pour découvrir nos nouvelles publications.</p>
+          </div>
 
           <!-- Message si recherche vide mais store non vide -->
           <div v-if="blogStore.blogs.length > 0 && paginatedBlogs.length === 0" class="no-results shadow-card">
-            <p>Aucun résultat ne correspond à vos recherches.</p>
+            <p>Aucun résultat ne correspond à vos recherches pour "{{ searchQuery }}".</p>
             <button @click="searchQuery = ''" class="btn-reset">Réinitialiser les filtres</button>
           </div>
 

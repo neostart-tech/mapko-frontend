@@ -79,7 +79,15 @@
                 </tr>
                 <tr v-if="!recentProjects.length">
                   <td colspan="4" class="p-0">
-                    <AdminLoader :visible="true" inline />
+                    <div v-if="referenceStore.loading" class="py-12">
+                      <AdminLoader :visible="true" inline />
+                    </div>
+                    <div v-else class="empty-state py-12">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-200 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1" />
+                      </svg>
+                      <p>Aucun projet récent trouvé.</p>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -103,7 +111,15 @@
               </div>
             </div>
             <div v-if="!recentBlogs.length" class="w-full col-span-2">
-              <AdminLoader :visible="true" inline />
+              <div v-if="blogStore.loading" class="py-12">
+                <AdminLoader :visible="true" inline />
+              </div>
+              <div v-else class="empty-state py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-200 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l5 5v11a2 2 0 01-2 2z" />
+                </svg>
+                <p>Aucun article de blog disponible.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -135,7 +151,15 @@
               </div>
             </div>
             <div v-if="!latestMessages.length" class="w-full">
-              <AdminLoader :visible="true" inline />
+              <div v-if="messageStore.loading" class="py-12">
+                <AdminLoader :visible="true" inline />
+              </div>
+              <div v-else class="empty-state py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-200 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <p>Aucun message reçu.</p>
+              </div>
             </div>
           </div>
         </section>
