@@ -4,9 +4,9 @@
     <AdminBreadcrumb :items="[{ label: 'Dashboard', link: '/admin' }, { label: 'Messages' }]" />
 
     <!-- Loader circulaire autour du logo -->
-    <AdminLoader v-if="messageStore.loading && messageStore.messages.length === 0" :visible="true" inline />
+    <AdminLoader v-if="messageStore.loading && (messageStore.messages?.length || 0) === 0" :visible="true" inline />
 
-    <div v-if="!messageStore.loading || messageStore.messages.length > 0" class="content-wrapper">
+    <div v-if="!messageStore.loading || (messageStore.messages?.length || 0) > 0" class="content-wrapper">
       <!-- HEADER CARD -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -20,7 +20,7 @@
             <div
               class="stats-pill bg-violet-50 text-violet-700 px-4 py-2 rounded-xl border border-violet-100 flex items-center gap-2">
               <span class="h-2 w-2 rounded-full bg-violet-600"></span>
-              <span class="text-xs font-semibold">{{ rows.length }} Messages globaux</span>
+              <span class="text-xs font-semibold">{{ messages?.length || 0 }} Messages globaux</span>
             </div>
           </div>
         </div>
@@ -88,7 +88,7 @@
         <div class="p-6">
           <vue3-datatable :rows="filteredRows" :columns="visibleColumns" :search="search" :sortable="true"
             :loading="messageStore.loading" skin="bh-table-hover bh-table-compact" class="custom-datatable"
-            :pageSize="10" :totalRows="messages.length" :noDataContent="noDataMessage" :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'">
+            :pageSize="10" :totalRows="messages?.length || 0" :noDataContent="noDataMessage" :paginationInfo="'Affichage de {0} à {1} sur {2} entrées'">
             <!-- Nom Column with Unread Indicator -->
             <template #expediteur="data">
               <div class="flex items-center gap-3">
@@ -299,7 +299,7 @@ const noDataMessage = computed(() => {
 });
 
 const filteredRows = computed(() => {
-  let data = [...messages.value];
+  let data = [...(messages.value || [])];
 
   if (filterStatus.value === 'unread') {
     data = data.filter(r => !r.statut);

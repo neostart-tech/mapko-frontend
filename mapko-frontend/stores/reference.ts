@@ -29,7 +29,7 @@ export const useReferenceStore = defineStore("reference", {
 
       try {
         const res: any = await $api("/references");
-        this.references = res;
+        this.references = res || [];
         return res;
       } catch (error: any) {
         throw error;

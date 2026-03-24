@@ -32,7 +32,7 @@ export const useBlogStore = defineStore("blog", {
 
       try {
         const res: any = await $api("/blogs");
-        this.blogs = res;
+        this.blogs = res || [];
         return res;
       } catch (error: any) {
         throw error;

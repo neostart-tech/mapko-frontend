@@ -31,7 +31,7 @@ export const useMessageStore = defineStore("message", {
 
       try {
         const res: any = await $api("/messages");
-        this.messages = res;
+        this.messages = res || [];
         return res;
       } catch (error: any) {
         throw error;

@@ -179,7 +179,7 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 }
 
-const secteurs = computed(() => secteurStore.secteurs);
+const secteurs = computed(() => secteurStore.secteurs || []);
 
 const noDataMessage = computed(() => {
   if (searchQuery.value) return `Aucun secteur trouvé pour "${searchQuery.value}"`;

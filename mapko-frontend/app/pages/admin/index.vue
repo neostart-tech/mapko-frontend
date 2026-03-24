@@ -67,7 +67,7 @@
                 <tr v-for="prj in recentProjects" :key="prj.id" @click="router.push(`/admin/references/${prj.id}`)">
                   <td>
                     <div class="item-name-cell">
-                      <div class="item-avatar">{{ prj.name.charAt(0) }}</div>
+                      <div class="item-avatar">{{ prj.name?.charAt(0) || '?' }}</div>
                       <span>{{ prj.name }}</span>
                     </div>
                   </td>
@@ -138,7 +138,7 @@
             <div v-for="msg in latestMessages" :key="msg.id" class="message-row" :class="{ 'is-new': !msg.isRead }" @click="router.push('/admin/messages')">
               <div class="message-user">
                 <div class="message-avatar" :style="{ background: msg.avatarBg }">
-                  {{ msg.author.charAt(0) }}
+                  {{ msg.author?.charAt(0) || '?' }}
                 </div>
                 <div class="message-content">
                   <div class="message-header">
@@ -198,14 +198,14 @@ const IconUsers = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '
 const IconGrid = () => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }, [h('rect', { x: '3', y: '3', width: '7', height: '7' }), h('rect', { x: '14', y: '3', width: '7', height: '7' }), h('rect', { x: '14', y: '14', width: '7', height: '7' }), h('rect', { x: '3', y: '14', width: '7', height: '7' })])
 
 const stats = computed(() => [
-  { title: 'Projets', value: referenceStore.references.length, icon: IconBriefcase, color: 'var(--color-violet)', bg: 'rgba(122, 46, 142, 0.1)' },
-  { title: 'Secteurs', value: secteurStore.secteurs.length, icon: IconGrid, color: 'var(--color-blue)', bg: 'rgba(15, 76, 129, 0.1)' },
-  { title: 'Partenaires', value: partenaireStore.partenaires.length, icon: IconUsers, color: 'var(--color-violet)', bg: 'rgba(122, 46, 142, 0.1)' },
-  { title: 'Messages', value: messageStore.unreadCount, icon: IconMail, color: 'var(--color-blue)', bg: 'rgba(15, 76, 129, 0.1)' },
+  { title: 'Projets', value: referenceStore.references?.length || 0, icon: IconBriefcase, color: 'var(--color-violet)', bg: 'rgba(122, 46, 142, 0.1)' },
+  { title: 'Secteurs', value: secteurStore.secteurs?.length || 0, icon: IconGrid, color: 'var(--color-blue)', bg: 'rgba(15, 76, 129, 0.1)' },
+  { title: 'Partenaires', value: partenaireStore.partenaires?.length || 0, icon: IconUsers, color: 'var(--color-violet)', bg: 'rgba(122, 46, 142, 0.1)' },
+  { title: 'Messages', value: messageStore.unreadCount || 0, icon: IconMail, color: 'var(--color-blue)', bg: 'rgba(15, 76, 129, 0.1)' },
 ])
 
 const recentProjects = computed(() => {
-  return [...referenceStore.references]
+  return [...(referenceStore.references || [])]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
     .map(p => ({
@@ -219,13 +219,13 @@ const recentProjects = computed(() => {
 })
 
 const recentBlogs = computed(() => {
-  return [...blogStore.blogs]
+  return [...(blogStore.blogs || [])]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 2)
 })
 
 const latestMessages = computed(() => {
-  return [...messageStore.messages]
+  return [...(messageStore.messages || [])]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
     .map(m => ({
@@ -233,7 +233,7 @@ const latestMessages = computed(() => {
       author: m.expediteur,
       time: formatDate(m.created_at),
       subject: m.objet,
-      snippet: m.contenu.length > 50 ? m.contenu.substring(0, 50) + '...' : m.contenu,
+      snippet: (m.contenu?.length || 0) > 50 ? m.contenu.substring(0, 50) + '...' : m.contenu,
       isRead: m.statut,
       avatarBg: m.statut ? '#cbd5e1' : `linear-gradient(135deg, var(--color-violet), var(--color-blue))`
     }))

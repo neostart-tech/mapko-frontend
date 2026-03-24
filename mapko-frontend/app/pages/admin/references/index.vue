@@ -202,7 +202,7 @@ const handleClickOutside = (e: MouseEvent) => {
 }
 
 const filteredReferences = computed(() => {
-  let data = [...referenceStore.references];
+  let data = [...(referenceStore.references || [])];
   if (filterStatus.value !== 'all') {
     data = data.filter(r => r.statut === filterStatus.value);
   }
