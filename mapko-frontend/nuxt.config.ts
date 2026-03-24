@@ -12,10 +12,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: "http://localhost:8000/api",
-      storageBase: "http://localhost:8000/storage",
       // apiBase: "http://localhost:8000/api",
       // storageBase: "http://localhost:8000/storage",
+      apiBase: "https://dashboard.mapko-partners.com/api",
+      storageBase: "https://dashboard.mapko-partners.com/storage",
     },
   },
 
